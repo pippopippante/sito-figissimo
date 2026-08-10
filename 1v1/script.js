@@ -1,39 +1,22 @@
-/*classe per personaggio base*/
-
-class Pg {
-  constructor(nik, ses, gun, armor, health) {
-    this.nik = nik;
-    this.ses = ses;
-    this.gun = gun;
-    this.armor = armor;
-    this.health = health;
-  }
-}
-
 /*creazione personaggio giocante*/
 
-var buono = new Pg("estocle", "maschio", 10, 0, 200);
+const buono = new Pg("estocle", "maschio", 10, 0, 200);
 
 /*creazione personaggio nemico*/
 
-var cattivo = new Pg("ermistilla", "femmina", 90, 30, 200);
+const cattivo = new Pg("ermistilla", "femmina", 90, 30, 200);
 
-/*salva i due personaggi: si chiama solo quando cambia qualcosa,
-  invece di riscrivere il localStorage dieci volte al secondo*/
+/*salva subito, cosi' se vai al combattimento senza toccare niente
+  ti ritrovi comunque i due personaggi di partenza*/
 
-function stiddu() {
-  localStorage.setItem("buonos", JSON.stringify(buono));
-  localStorage.setItem("cattivos", JSON.stringify(cattivo));
-}
-
-stiddu();
+salva(buono, cattivo);
 
 function nomes() {
   var normes = document.getElementById("nik");
   var normesi = document.getElementById("normeso");
   buono.nik = normes.value;
   normesi.innerHTML = `nome: ${buono.nik}`;
-  stiddu();
+  salva(buono, cattivo);
 }
 
 function nomest() {
@@ -41,25 +24,26 @@ function nomest() {
   var normesi = document.getElementById("normesos");
   cattivo.nik = normes.value;
   normesi.innerHTML = `nome: ${cattivo.nik}`;
-  stiddu();
+  salva(buono, cattivo);
 }
 
-/*funzione unica per cambiare arma, il danno e il nome li passa il bottone*/
+/*una funzione sola per tutte le armi, il danno e il nome li passa il
+  bottone che la chiama*/
 
 function cambia(gun, nome) {
   buono.gun = gun;
   var spitti = document.getElementById("rma");
   spitti.innerHTML = `arma: ${nome} +${gun}dmg`;
-  stiddu();
+  salva(buono, cattivo);
 }
 
-/*stessa cosa per l'armatura*/
+/*stessa cosa per le armature*/
 
 function cambiar(armor, nome) {
   buono.armor = armor;
   var spitti = document.getElementById("rmar");
   spitti.innerHTML = `armatura: ${nome} +${armor}armor`;
-  stiddu();
+  salva(buono, cattivo);
 }
 
 function pisti() {

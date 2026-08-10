@@ -1,28 +1,16 @@
-const buono = JSON.parse(localStorage.getItem("buonos"));
-
-const cattivo = JSON.parse(localStorage.getItem("cattivos"));
+const { buono, cattivo } = carica();
 
 const rut = document.getElementById("dud");
 
 const duddu = document.getElementById("duddu");
 
+/*scrive le vite in cima, all'inizio si vede solo la tua*/
+
 rut.innerHTML = `${buono.nik}
     ${buono.health}/200hp`;
 
-/*salva e controlla se qualcuno e' morto, invece di ricontrollare
-  due volte al secondo lo fa dopo ogni azzione*/
-
-function stiddu() {
-  localStorage.setItem("buonos", JSON.stringify(buono));
-  localStorage.setItem("cattivos", JSON.stringify(cattivo));
-  if (buono.health <= 0) {
-    location.href = "looser.html";
-  } else if (cattivo.health <= 0) {
-    location.href = `win.html`;
-  }
-}
-
-/*la parte uguale per tutte le azzioni: scrive nel log e aggiorna le vite*/
+/*la parte uguale a tutte e quattro le azzioni: riga nel log, vite
+  aggiornate, salvataggio e controllo di chi e' morto*/
 
 function azzione(messaggio) {
   const attacco = document.createElement("p");
@@ -32,7 +20,12 @@ function azzione(messaggio) {
     ${buono.health}/200hp
      ${cattivo.nik}
     ${cattivo.health}/200hp`;
-  stiddu();
+  salva(buono, cattivo);
+  if (buono.health <= 0) {
+    location.href = "looser.html";
+  } else if (cattivo.health <= 0) {
+    location.href = `win.html`;
+  }
 }
 
 /*funzioni per i bottoni azzione*/

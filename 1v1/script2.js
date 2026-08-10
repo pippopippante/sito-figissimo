@@ -1,13 +1,12 @@
-/*JSON.parse ridava gia' i personaggi pronti, non serve ricostruirli*/
+/*pagina di vittoria e di sconfitta, sono la stessa scritta a seconda
+  di come e' finita*/
 
-const buonost = JSON.parse(localStorage.getItem("buonos"));
+const { buono, cattivo } = carica();
 
-const cattivost = JSON.parse(localStorage.getItem("cattivos"));
+const vita = document.getElementById("vita");
 
-var vita = document.getElementById("vita");
-
-if (buonost.health > 0) {
-  vita.innerHTML = `complimenti hai vinto e avevi ancora ${buonost.health}hp`;
+if (buono.health > 0) {
+  vita.innerHTML = `complimenti hai vinto e avevi ancora ${buono.health}hp`;
 } else {
-  vita.innerHTML = `ce ${buonost.nik}, te ha aperto e ${cattivost.nik} ha ancora ${cattivost.health}hp`;
+  vita.innerHTML = `ce ${buono.nik}, te ha aperto e ${cattivo.nik} ha ancora ${cattivo.health}hp`;
 }
