@@ -22,7 +22,14 @@ function colorebuzi() {
 }
 
 var soldi = 0;
-const solp = document.querySelector("p");
+
+/*riferimenti al dom presi una volta sola invece che a ogni aggiornamento*/
+
+const solp = document.getElementById("soldi");
+const sota = document.getElementById("sot");
+const stippi = document.getElementById("stip");
+const buzzonss = document.getElementById("buzzonss");
+const ernisas = document.getElementById("ernisas");
 
 /*crea dipendenti*/
 
@@ -65,32 +72,43 @@ function cambianomes() {
   }
 }
 
-/*aggiorna la quantitadi soldi*/
+/*quanto fattura in un secondo tutta l'azzienda messa insieme*/
 
-setInterval(patrimonio, 100);
+function fatturato() {
+  return (
+    (buzi.produzione * buzi.quantita * buzi.godness) / 100 +
+    (ernisa.produzione * ernisa.quantita * 2 * ernisa.godness) / 100 +
+    (izuru.produzione * izuru.quantita * izuru.godness) / 100 +
+    prime.produzione * prime.quantita
+  );
+}
 
-function patrimonio() {
+/*un solo timer per la produzione di tutti invece di uno per ogni assunto*/
+
+setInterval(produci, 1000);
+
+function produci() {
+  soldi = soldi + fatturato();
+}
+
+/*un solo loop per tutte le scritte invece di tre separati*/
+
+setInterval(aggiornaSchermo, 100);
+
+function aggiornaSchermo() {
   if (soldi >= 10000000) {
     solp.innerHTML = `Patrimonio: ${Math.round((soldi / 1000000) * 100) / 100}m$`;
   } else {
     solp.innerHTML = `Patrimonio: ${Math.round(soldi * 100) / 100}$`;
   }
-}
-
-/*aggiorna la fatturazione al secondo*/
-
-setInterval(fatturato, 100);
-
-function fatturato() {
-  var sota = document.getElementById("sot");
-  sota.innerHTML = `Fatturi ${(buzi.produzione * buzi.quantita * buzi.godness) / 100 + (ernisa.produzione * ernisa.quantita * 2 * ernisa.godness) / 100 + (izuru.produzione * izuru.quantita * izuru.godness) / 100 + prime.produzione * prime.quantita}$ al secondo`;
+  sota.innerHTML = `Fatturi ${fatturato()}$ al secondo`;
+  stippi.innerHTML = `Pagi ${ernisas.value * ernisa.quantita + buzzonss.value * buzi.quantita}$ di stupendi al minuto`;
 }
 
 /*reparto buzi*/
 
 function assumibuzi() {
   if (soldi >= buzi.costo) {
-    setInterval(buziproduce, 1000);
     soldi = soldi - buzi.costo;
     buzi.costo = buzi.costo * 2 + 10;
     var buzzozzo = document.getElementById("buzzotte");
@@ -99,10 +117,6 @@ function assumibuzi() {
     var merdas = document.getElementById("merdas");
     merdas.innerHTML = "Buzi assunti:" + buzi.quantita;
   }
-}
-
-function buziproduce() {
-  soldi = soldi + (buzi.produzione * buzi.godness) / 100;
 }
 
 function buzipotenzia() {
@@ -122,7 +136,6 @@ function buzipotenzia() {
 
 function assumiernisa() {
   if (soldi >= ernisa.costo) {
-    setInterval(ernisaproduci, 500);
     soldi = soldi - ernisa.costo;
     ernisa.costo = ernisa.costo * 2 + 50;
     var buzzozzo = document.getElementById("ernisotta");
@@ -131,10 +144,6 @@ function assumiernisa() {
     var merdas = document.getElementById("divina");
     merdas.innerHTML = "Ernisa assunte:" + ernisa.quantita;
   }
-}
-
-function ernisaproduci() {
-  soldi = soldi + (ernisa.produzione * ernisa.godness) / 100;
 }
 
 function ernisapotenzia() {
@@ -154,7 +163,6 @@ function ernisapotenzia() {
 
 function assumiizuru() {
   if (soldi >= izuru.costo) {
-    setInterval(izuruproduce, 1000);
     soldi = soldi - izuru.costo;
     izuru.costo = izuru.costo * 2 + 50;
     var buzzozzo = document.getElementById("izuzzu");
@@ -167,10 +175,6 @@ function assumiizuru() {
     spacc.removeAttribute("hidden");
     spac.innerHTML = `Sostegni statali: ${izuru.stipendio * izuru.quantita}$ al minuto`;
   }
-}
-
-function izuruproduce() {
-  soldi = soldi + izuru.produzione;
 }
 
 function izurupotenzia() {
@@ -197,14 +201,9 @@ function assumiprime() {
     prime.quantita++;
     var merdas = document.getElementById("primuzu");
     merdas.innerHTML = "Prime assunti:" + prime.quantita;
-    setInterval(primeproduce, 1000);
     var stitti = document.getElementById("stitti");
     stitti.removeAttribute("hidden");
   }
-}
-
-function primeproduce() {
-  soldi = soldi + prime.produzione;
 }
 
 function primepotenzia() {
@@ -231,24 +230,23 @@ function sostegnistatali() {
 }
 
 function stipendi() {
-  var buzzonssold = document.getElementById("buzzonss").value;
-  var ernisasol = document.getElementById("ernisas").value;
-  if (soldi - buzzonssold * buzi.quantita - ernisasol * ernisa.quantita < 0) {
+  var buzzonssold = Number(buzzonss.value);
+  var ernisasol = Number(ernisas.value);
+  var totale = buzzonssold * buzi.quantita + ernisasol * ernisa.quantita;
+  if (soldi - totale < 0) {
     location.href = "looser.html";
   }
-  soldi = soldi - buzzonssold * buzi.quantita - ernisasol * ernisa.quantita;
+  soldi = soldi - totale;
 
   sostegnistatali();
 
   if (buzzonssold >= 65) {
     buzi.godness = 145;
-  } else if ((buzzonssold < 65) & (buzzonssold >= 50)) {
-    buzi.godness = Math.pow(buzzonssold - 50, 2);
-    buzi.godness = Math.round((0.2 * buzi.godness + 100) * 1) / 1;
-  } else if ((buzzonssold <= 50) & (buzzonssold >= 40)) {
-    buzi.godness = Math.pow(buzzonssold - 50, 2);
-    buzi.godness = Math.round((100 - 0.25 * buzi.godness) * 1) / 1;
-  } else if (buzzonssold < 800) {
+  } else if (buzzonssold >= 50) {
+    buzi.godness = Math.round(0.2 * Math.pow(buzzonssold - 50, 2) + 100);
+  } else if (buzzonssold >= 40) {
+    buzi.godness = Math.round(100 - 0.25 * Math.pow(buzzonssold - 50, 2));
+  } else {
     buzi.godness = 75;
   }
 
@@ -257,29 +255,16 @@ function stipendi() {
 
   if (ernisasol >= 1200) {
     ernisa.godness = 130;
-  } else if ((ernisasol < 1200) & (ernisasol >= 1000)) {
-    ernisa.godness = Math.pow(ernisasol - 1000, 2);
-    ernisa.godness = Math.round((0.00075 * ernisa.godness + 100) * 1) / 1;
-  } else if ((ernisasol <= 1000) & (ernisasol >= 800)) {
-    ernisa.godness = Math.pow(ernisasol - 1000, 2);
-    ernisa.godness = Math.round((100 - 0.0005 * ernisa.godness) * 1) / 1;
-  } else if (ernisasol < 800) {
+  } else if (ernisasol >= 1000) {
+    ernisa.godness = Math.round(0.00075 * Math.pow(ernisasol - 1000, 2) + 100);
+  } else if (ernisasol >= 800) {
+    ernisa.godness = Math.round(100 - 0.0005 * Math.pow(ernisasol - 1000, 2));
+  } else {
     ernisa.godness = 0;
   }
 
   var ernisagosd = document.getElementById("ernisagos");
   ernisagosd.innerHTML = `Produttivita: ${ernisa.godness}%`;
-}
-
-/*costo complessivo stipendi */
-
-setInterval(stipendisc, 100);
-
-function stipendisc() {
-  var buzzonssold = document.getElementById("buzzonss").value;
-  var ernisasol = document.getElementById("ernisas").value;
-  var stippi = document.getElementById("stip");
-  stippi.innerHTML = `Pagi ${ernisasol * ernisa.quantita + buzzonssold * buzi.quantita}$ di stupendi al minuto`;
 }
 /*g: ernisasol=0.0001(1200-1000)^(2),*/
 
@@ -287,12 +272,12 @@ function stipendisc() {
 
 setInterval(mancas, 1000);
 
+const secco = document.getElementById("seconds");
 var sec = 60;
 function mancas() {
-  var secco = document.getElementById("seconds");
   sec--;
   secco.innerHTML = `Secondi al prossimo stipendio:${sec}`;
-  if (sec == -0) {
+  if (sec == 0) {
     sec = 60;
     stipendi();
   }
@@ -300,12 +285,17 @@ function mancas() {
 
 /*creazione debito */
 
+const tempos = document.getElementById("tempos");
+const debit = document.getElementById("debit");
 var nunu = 0;
 var money = 0;
+var min = 5;
+var seccc = 0;
+
 function debito() {
-  money = document.getElementById("debit").value;
+  money = Number(debit.value);
   if (nunu === 0) {
-    soldi = soldi + money * 1;
+    soldi = soldi + money;
     nunu++;
     min = 2;
     seccc = 0;
@@ -314,9 +304,7 @@ function debito() {
 }
 
 /*scadenza debito */
-var min = 5;
-var seccc = 0;
-var tempos = document.getElementById("tempos");
+
 function timer() {
   const timerID = setInterval(() => {
     if (seccc == 0) {
@@ -324,15 +312,13 @@ function timer() {
       min--;
     }
     seccc--;
-    if (seccc < 10) {
+    if (min == -1) {
+      mannaia();
+      clearInterval(timerID);
+    } else if (seccc < 10) {
       tempos.innerHTML = `${min}:0${seccc} minuti al addebito`;
     } else {
       tempos.innerHTML = `${min}:${seccc} minuti al addebito`;
-    }
-    if (min == -1) {
-      mannaia();
-      tempos.innerHTML = `Debito saldato`;
-      clearInterval(timerID);
     }
   }, 1000);
 }

@@ -18,11 +18,22 @@ var buono = new Pg("estocle", "maschio", 10, 0, 200);
 
 var cattivo = new Pg("ermistilla", "femmina", 90, 30, 200);
 
+/*salva i due personaggi: si chiama solo quando cambia qualcosa,
+  invece di riscrivere il localStorage dieci volte al secondo*/
+
+function stiddu() {
+  localStorage.setItem("buonos", JSON.stringify(buono));
+  localStorage.setItem("cattivos", JSON.stringify(cattivo));
+}
+
+stiddu();
+
 function nomes() {
   var normes = document.getElementById("nik");
   var normesi = document.getElementById("normeso");
   buono.nik = normes.value;
   normesi.innerHTML = `nome: ${buono.nik}`;
+  stiddu();
 }
 
 function nomest() {
@@ -30,58 +41,27 @@ function nomest() {
   var normesi = document.getElementById("normesos");
   cattivo.nik = normes.value;
   normesi.innerHTML = `nome: ${cattivo.nik}`;
+  stiddu();
 }
 
-/*funzioni per cambiare armi*/
+/*funzione unica per cambiare arma, il danno e il nome li passa il bottone*/
 
-function cambia() {
-  buono.gun = 35;
+function cambia(gun, nome) {
+  buono.gun = gun;
   var spitti = document.getElementById("rma");
-  spitti.innerHTML = "arma: ndrangeta +35dmg";
+  spitti.innerHTML = `arma: ${nome} +${gun}dmg`;
+  stiddu();
 }
 
-function cambia1() {
-  buono.gun = 75;
-  var spitti = document.getElementById("rma");
-  spitti.innerHTML = "arma: idrante +75dmg";
-}
+/*stessa cosa per l'armatura*/
 
-function cambia2() {
-  buono.gun = 150;
-  var spitti = document.getElementById("rma");
-  spitti.innerHTML = "arma: lancia di lungino +150dmg";
-}
-
-/*funzioni per cambiare armatura*/
-
-function cambiar() {
-  buono.armor = 10;
+function cambiar(armor, nome) {
+  buono.armor = armor;
   var spitti = document.getElementById("rmar");
-  spitti.innerHTML = "armatura: ndrangeta +10armor";
+  spitti.innerHTML = `armatura: ${nome} +${armor}armor`;
+  stiddu();
 }
 
-function cambiar1() {
-  buono.armor = 35;
-  var spitti = document.getElementById("rmar");
-  spitti.innerHTML = "armatura: tanga di godzilla +35armor";
-}
-
-function cambiar2() {
-  buono.armor = 66;
-  var spitti = document.getElementById("rmar");
-  spitti.innerHTML = "armatura: paolo bitta +66armor";
-}
-
-
-/*funzione per determinare vittoria e sconfitta*/
-
-function stiddu() {
-  localStorage.setItem("buonos", JSON.stringify(buono));
-  localStorage.setItem("cattivos", JSON.stringify(cattivo));
-
-}
-function pisti(){
+function pisti() {
   location.href = `LVL_1.html`;
 }
-
-setInterval(stiddu, 100);

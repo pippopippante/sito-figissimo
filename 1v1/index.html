@@ -33,9 +33,13 @@
 
     <div id="armar">
       <p>scegli la tua arma</p>
-      <button class="sutton" onclick="cambia()">ndrangeta +35dmg</button>
-      <button class="sutton" onclick="cambia1()">idrante +75dmg</button>
-      <button class="sutton" onclick="cambia2()">
+      <button class="sutton" onclick="cambia(35, 'ndrangeta')">
+        ndrangeta +35dmg
+      </button>
+      <button class="sutton" onclick="cambia(75, 'idrante')">
+        idrante +75dmg
+      </button>
+      <button class="sutton" onclick="cambia(150, 'lancia di lungino')">
         lancia di lungino<br />
         +150dmg
       </button>
@@ -43,12 +47,16 @@
 
     <div id="armaturar">
       <p>scegli la tua armatura</p>
-      <button class="sutton" onclick="cambiar()">ndrangeta +10armor</button>
-      <button class="sutton" onclick="cambiar1()">
+      <button class="sutton" onclick="cambiar(10, 'ndrangeta')">
+        ndrangeta +10armor
+      </button>
+      <button class="sutton" onclick="cambiar(35, 'tanga di godzilla')">
         tanga di godzilla <br />
         +35armor
       </button>
-      <button class="sutton" onclick="cambiar2()">paolo bitta +66armor</button>
+      <button class="sutton" onclick="cambiar(66, 'paolo bitta')">
+        paolo bitta +66armor
+      </button>
     </div>
     <div id="inizzio"></div>
     <br>
