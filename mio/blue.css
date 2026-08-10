@@ -1,0 +1,56 @@
+body {
+  background-color: aqua;
+  color: blue;
+  margin: auto;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+p {
+  font-size: 25px;
+}
+div {
+  background-color: #964B00;
+  color: white;
+  border-radius: 20px;
+  padding-left: 15px;
+}
+.italic {
+  font-style: italic;
+}
+.Arial Narrow {
+  font-style: ArialNarrow;
+}
+.Times {
+  font-style: Times;
+}
+.Times New Roman {
+  font-style: Times New Roman;
+}
+.Helvetica {
+  font-style: Helvetica;
+}
+.Courier {
+  font-style: Courier;
+}
+.Courier New {
+  font-style: Courier New;
+}
+
+.Verdana {
+  font-style: Verdana;
+}
+
+.Candara {
+  font-style: Candara;
+}
+
+.Ginevra {
+  font-style: Ginevra;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.highlight {
+  background-color: yellow;
+}

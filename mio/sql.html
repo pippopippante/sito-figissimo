@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="appunti.css" />
+    <link rel="icon" href="https://i.pinimg.com/736x/9a/7f/98/9a7f98ce69481829c1243c9fb6b7eb6b.jpg" type="image/svg+xml">
+  </head>
+  <body>
+    <h1>DATABASE</h1>
+    <p>
+      Un database è un sistema organizzato per archiviare e gestire dati,
+      rendendoli facilmente accessibili, aggiornabili e utilizzabili
+    </p>
+    <h2>Caratteristiche principali di un database:</h2>
+    <ul>
+      <li>
+        <span class="rosso">Dati organizzati in tabelle</span>: I dati sono
+        organizzati in righe e colonne, simili a un foglio di calcolo
+      </li>
+      <li>
+        <span class="rosso">DBMS</span>: Software che gestisce il database
+      </li>
+      <li>
+        <span class="rosso">Interfaccia per l'accesso</span>: Consente agli
+        utenti o alle applicazioni di interagire con i dati attraverso query
+      </li>
+    </ul>
+    <h2>Tipi di database:</h2>
+    <ul>
+      <li>
+        <span class="rosso">Database relazionali (RDBMS)</span>: Basati su tabelle relazionate tra loro tramite chiavi
+      </li>
+      <li>
+        <span class="rosso">Database non relazionali (NoSQL)</span>: Organizzati in modo diverso da tabelle, come documenti, grafi o chiavi-valori
+      </li>
+      <li>
+        <span class="rosso">Database orientati agli oggetti</span>: Architettura basata su oggetti piuttosto che su tabelle
+      </li>
+    </ul>
+    <h1>SQL</h1>
+    <p class="cracco">(structured query language)</p>
+    <p>
+      è un linguaggio di programmazzione che permette di interrogare un database
+    </p>
+    <h2>dei comandi base sono:</h2>
+    <ul>
+      <li>
+        <span class="rosso">select</span>: chiede al database cosa cercare
+      </li>
+      <li>
+        <span class="rosso">from</span>: seleziona la cartella in cui cercare
+      </li>
+      <li>
+        <span class="rosso">were</span>: aggiunge delle condizioni alla ricerca
+      </li>
+      <li><span class="rosso">like</span>: seleziona la prima lettera</li>
+      <li>
+        <span class="rosso">order by</span>: ordina alfabetico/maggiore minore
+        aggiungendo desk si inverte
+      </li>
+    </ul>
+
+    <p>
+      sql è diviso in 2 parti ddl che si occupa di creare e distruggere cartelle
+    </p>
+
+    <h1>DDL</h1>
+    <p class="cracco">(Data definition language)</p>
+    <h2>i comandi del DDL sono:</h2>
+    <ul>
+      <li>
+        <span class="rosso">create table</span> "nometabbella"( "nomecolonna"
+        "tipodidato"(n) primary key unique not null,) <br /><span class="ciccio"
+          >primary key</span
+        >
+        se è chiave primaria <br /><span class="ciccio">unique</span> se deve
+        essere unico <br /><span class="ciccio">not null</span> se è obligatorio
+      </li>
+      <li>
+        <span class="rosso">alter table</span> "nome tabbella" "comando"
+        <br />modifica la tabbella
+      </li>
+      <li>
+        <span class="rosso">drop table </span>"nome tabbella" <br />cancella la
+        tabbella
+      </li>
+    </ul>
+
+    <h1>DML</h1>
+    <p class="cracco">(Data manupulation language)</p>
+    <h2>i comandi del DML sono:</h2>
+    <ul>
+      <li>
+        <span class="rosso">insert into</span> "nometabbella" ("nome colonne")
+        values("valori")
+      </li>
+      <li>
+        <span class="rosso">delite form </span> were "nome tabbella" <br /><span
+          class="ciccio"
+          >were</span
+        >
+        per aggiungere una condizione
+      </li>
+      <li>
+        <span class="rosso">update</span> "nome tabbella" <br /><span
+          class="ciccio"
+          >set</span
+        >
+        "colonna"="valore" <br /><span class="ciccio">where</span> "condizione"
+      </li>
+    </ul>
+    <br />
+    <br />
+    <a href="index.html">no brosky torna indietro</a>
+    <script src="script.js"></script>
+  </body>
+</html>

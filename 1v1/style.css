@@ -1,0 +1,249 @@
+/* CSS STREET COMBAT EDITION */
+:root {
+  --neon-pink: #ff2a6d;
+  --neon-blue: #05d9e8;
+  --neon-purple: #d300c5;
+  --dark-bg: #0d0221;
+  --cyber-yellow: #f7f700;
+  --grid-color: rgba(5, 217, 232, 0.15);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--dark-bg);
+  background-image: 
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 30px 30px;
+  color: white;
+  font-family: 'Rajdhani', 'Arial Narrow', sans-serif;
+  padding: 20px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Effetto neon al titolo */
+h1 {
+  font-family: 'Bungee', cursive;
+  color: var(--neon-pink);
+  text-shadow: 
+    0 0 5px var(--neon-pink),
+    0 0 15px var(--neon-pink),
+    0 0 30px var(--neon-purple);
+  font-size: 2.2rem;
+  margin: 20px 0;
+  line-height: 1.3;
+  letter-spacing: 1px;
+  animation: flicker 1.5s infinite alternate;
+}
+
+h2 {
+  color: var(--neon-blue);
+  font-size: 1.8rem;
+  margin: 25px 0 15px;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--neon-blue), transparent);
+}
+
+/* Sezioni combat */
+.creazione, #tutti, #armar, #armaturar {
+  background: rgba(13, 2, 33, 0.85);
+  border: 1px solid var(--neon-blue);
+  box-shadow: 
+    0 0 10px var(--neon-blue),
+    inset 0 0 10px var(--neon-blue);
+  padding: 20px;
+  margin: 25px auto;
+  max-width: 600px;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.creazione::before, #armar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 42, 109, 0.2),
+    transparent
+  );
+  animation: shine 3s infinite;
+}
+
+/* Input stile cyber */
+input {
+  background: transparent;
+  border: 1px solid var(--neon-blue);
+  color: var(--cyber-yellow);
+  padding: 12px 15px;
+  font-size: 1.1rem;
+  width: 80%;
+  margin: 15px 0;
+  text-align: center;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 15px var(--neon-blue);
+  border-color: var(--neon-pink);
+}
+
+/* Bottoni da combattimento */
+button, .sutton {
+  background: linear-gradient(45deg, var(--neon-purple), var(--neon-pink));
+  color: black;
+  border: none;
+  padding: 12px 25px;
+  margin: 10px;
+  font-family: 'Bungee', cursive;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  border-radius: 0;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%
+  );
+}
+
+button::before, .sutton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transition: all 0.5s;
+  z-index: -1;
+}
+
+button:hover, .sutton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px var(--neon-purple);
+}
+
+button:hover::before, .sutton:hover::before {
+  left: 100%;
+}
+
+/* Statistiche player */
+p {
+  font-size: 1.1rem;
+  margin: 10px 0;
+  padding: 8px;
+  background: rgba(255, 42, 109, 0.1);
+  border-left: 3px solid var(--neon-pink);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Link "torna indietro" */
+a {
+  color: var(--cyber-yellow);
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-block;
+  margin-top: 30px;
+  padding: 10px 20px;
+  border: 1px solid var(--cyber-yellow);
+  position: relative;
+  overflow: hidden;
+}
+
+a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 0, 0.4),
+    transparent
+  );
+  transition: all 0.5s;
+}
+
+a:hover::before {
+  left: 100%;
+}
+
+/* Animazioni */
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow: 
+      0 0 5px var(--neon-pink),
+      0 0 15px var(--neon-pink),
+      0 0 30px var(--neon-purple);
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+  }
+}
+
+@keyframes shine {
+  100% {
+    left: 100%;
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.3rem;
+  }
+  
+  button, .sutton {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  input {
+    width: 100%;
+  }
+}

@@ -1,0 +1,86 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #EAE0D5;
+  color: #333;
+  margin: 0;
+  padding: 10px;
+}
+
+h1,
+h2 {
+  color: #22333B;
+}
+
+p {
+color: #0A0908;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+p,
+button {
+  display: inline;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px 0;
+  background-color: #22333B;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #5E503F;
+}
+
+input[type="text"],
+input[type="number"] {
+  padding: 8px;
+  margin: 5px 0;
+  border: 1px solid #CCC;
+  border-radius: 4px;
+  width: calc(100% - 20px);
+}
+
+input[type="number"] {
+  max-width: 200px;
+}
+
+.assumi,
+.potenzia {
+  background-color: #C6AC8F;
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #DDD;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 360px;
+}
+
+#stipendis,
+#banca,
+#sblocca {
+  background-color: #C6AC8F;
+}
+
+#nomes {
+  font-weight: bold;
+  text-align: center;
+}
+
+#soldi {
+  font-size: 20px;
+  color: red;
+}
+
+a {
+  color: #2196F3;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

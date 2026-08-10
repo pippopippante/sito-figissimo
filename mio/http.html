@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+ <title></title>
+ <link rel="stylesheet" href="appunti.css">
+ <link rel="icon" href="https://i.pinimg.com/736x/9a/7f/98/9a7f98ce69481829c1243c9fb6b7eb6b.jpg" type="image/svg+xml">
+</head>
+<body>
+  <h1>http</h1>
+  <p>protocollo che permette di trasferire risorse web tra client e server</p>
+  <ul>
+    <li>client → macchina su cui risiede il browser</li>
+    <li>browser → richiede il servizio</li>
+    <li>server → macchina su cui risiede il sito web</li>
+  </ul>
+  <h2>Utilizza un meccanismo richiesta risposta</h2>
+  <p>il protocollo http opera in 4 fasi:</p>
+  <ol>
+    <li>connessione: viene instaurata la connessione TCP(orientato alla connessione protocollo di rete) tra C/S</li>
+    <li>risposta: il server invia la pagina html al client</li>
+    <li>disconnessione: il client una volta ricevuta la pagina, chiude la connessione TCP(e’ stato modificato, si mantiene aperta la connessione per ulteriori richieste da parte del client)</li>
+  </ol>
+  <h1>Tipologie HTTP</h1>
+    <ul>
+    <li>HTTP 1.0: ogni risorsa viene richiesta all’interno di una connessione</li>
+    <li>HTTP 1.1: su una stessa connessione TCP il client puo’ inviare piu’ richieste, ma una alla volta → permanentemente non
+incatenata</li>
+    <li>HTTP 1.1 con pipeling: il client puo’ inviare piu’ richieste contemporaneamente nella stessa connessione senza
+aspettare le risposte del server → permanentemente incatenata
+</li>
+  </ul>
+  <a href ="index.html">no brosky torna indietro</a>
+</body>
+</html>
