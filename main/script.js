@@ -1,22 +1,3 @@
-/*funzione che compareimmagine wooo bottone magic*/
-
-var stucco = 0;
-
-function waaa() {
-  var stu = document.getElementById("pisco");
-  var sty = document.getElementById("sputos");
-  if (stucco == 0) {
-    stu.src =
-      "https://i.pinimg.com/564x/74/8c/b7/748cb7d31f08dffddb4c2d84945f35b7.jpg";
-    stucco++;
-    sty.innerHTML = "Cazzo fra, He was hinding";
-  } else if (stucco == 1) {
-    stu.src = "";
-    stucco--;
-    sty.innerHTML = "cosa e' quello?";
-  }
-}
-
 /*funzione che cambia la cancone tramite il cambio del atributo procedura standart tipo quello del immagine po esse anche lostesso */
 
 var songas = 0;
@@ -70,33 +51,3 @@ function song() {
   }
 }
 
-/*cambia le cose li vabbe css merda evidenzia tossolinea cose li*/
-
-function stile() {
-  var hhh = document.getElementById("ciccios");
-  hhh.classList.toggle("italic");
-}
-
-function sottolinea() {
-  var hhh = document.getElementById("ciccios");
-  hhh.classList.toggle("underline");
-}
-
-function evidenzia() {
-  var hhh = document.getElementById("ciccios");
-  hhh.classList.toggle("highlight");
-}
-
-/*funzione che tramite l'imput che sta li crea un p con il contenuto del input ce la cosa è che crea p wowwowowowowwowo */
-
-function gionni() {
-  var testo = document.createTextNode(
-    document.getElementById("mioTesto").value,
-  );
-
-  var paragrafo = document.createElement("p");
-
-  paragrafo.appendChild(testo);
-
-  document.getElementById("testo").appendChild(paragrafo);
-}

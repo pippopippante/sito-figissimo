@@ -18,15 +18,3 @@ body {
 button {
   background-color: #FFA343;
 }
- 
-.italic {
-  font-style: italic;
-}
-
-.underline {
-  text-decoration: underline;
-}
-
-.highlight {
-  background-color: yellow;
-}
