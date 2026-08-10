@@ -34,12 +34,6 @@ function nomest() {
 
 /*funzioni per cambiare armi*/
 
-let diddi = document.getElementById("armar");
-
-let diddir = document.getElementById("armaturar");
-
-let diddis = document.getElementById("duddu");
-
 function cambia() {
   buono.gun = 35;
   var spitti = document.getElementById("rma");
@@ -64,14 +58,12 @@ function cambiar() {
   buono.armor = 10;
   var spitti = document.getElementById("rmar");
   spitti.innerHTML = "armatura: ndrangeta +10armor";
-  var rut = document.getElementById("dud");
 }
 
 function cambiar1() {
   buono.armor = 35;
   var spitti = document.getElementById("rmar");
   spitti.innerHTML = "armatura: tanga di godzilla +35armor";
-  var rut = document.getElementById("dud");
 }
 
 function cambiar2() {

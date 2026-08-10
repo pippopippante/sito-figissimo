@@ -1,29 +1,3 @@
-/*permette il cambio dello sfondo tramite il cambio del css*/
-
-var gg = 0;
-
-function colore() {
-  var gionnis = document.querySelector("link");
-  if (gg == 0) {
-    gionnis.href = "rosso.css";
-    gg++;
-  } else if (gg == 1) {
-    gionnis.href = "blue.css";
-    gg++;
-  } else {
-    gionnis.href = "wowwo.css";
-    gg = 0;
-  }
-}
-
-/*annulla il cambio sfondo*/
-
-function nocolore() {
-  var gionnis = document.querySelector("link");
-  gionnis.href = "base.css";
-  gg = 0;
-}
-
 /*funzione che compareimmagine wooo bottone magic*/
 
 var stucco = 0;
@@ -85,6 +59,10 @@ function song() {
     songa.src =
       "https://open.spotify.com/embed/track/5hM5arv9KDbCHS0k9uqwjr?utm_source=generator";
     songas++;
+  } else if (songas == 9) {
+    songa.src =
+      "https://open.spotify.com/embed/track/2cQF51lloqnIqinLnnz4fK?si=b94eed33c0b64384";
+    songas++;
   } else {
     songa.src =
       "https://open.spotify.com/embed/user/spotify/track/7zZbr4MZMwX5R5hlWq31bl?si=2000584f62384293";
@@ -96,19 +74,16 @@ function song() {
 
 function stile() {
   var hhh = document.getElementById("ciccios");
-  //var types = document.getElementById("giattoo").value;
   hhh.classList.toggle("italic");
 }
 
 function sottolinea() {
   var hhh = document.getElementById("ciccios");
-  var types = document.getElementById("giattoo").value;
   hhh.classList.toggle("underline");
 }
 
 function evidenzia() {
   var hhh = document.getElementById("ciccios");
-  var types = document.getElementById("giattoo").value;
   hhh.classList.toggle("highlight");
 }
 

@@ -1,0 +1,2521 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JZelda — guida allo studio</title>
+<meta name="description" content="Guida interattiva al progetto JZelda: architettura MVC, game loop, generazione del dungeon, design pattern e domande d'orale.">
+<style>
+/* ══ Tokens ══════════════════════════════════════════════════════════ */
+:root{
+  --sfondo:#f6f4ee; --pannello:#fffdf8; --pannello-2:#f0eee5; --bordo:#e2ded1;
+  --testo:#23251f; --tenue:#6b6f63; --acc:#1c7048; --acc-2:#e0f0e7;
+  --oro:#98700f; --oro-2:#faf1d9; --rosso:#a4342a; --rosso-2:#fbe9e6;
+  --blu:#2a5c9e; --blu-2:#e3ecf9;
+  --codice:#f2f0e7; --ombra:0 1px 2px rgba(0,0,0,.05),0 8px 24px -12px rgba(0,0,0,.18);
+  --mono:ui-monospace,"Cascadia Mono","Consolas","Menlo",monospace;
+  --testo-font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-tema="chiaro"]){
+    --sfondo:#111410; --pannello:#191d17; --pannello-2:#1f241d; --bordo:#2e352b;
+    --testo:#e7eae2; --tenue:#98a08f; --acc:#5ecf8e; --acc-2:#17301f;
+    --oro:#e0b854; --oro-2:#2b2413; --rosso:#f08a7c; --rosso-2:#2e1a17;
+    --blu:#78aef2; --blu-2:#182437;
+    --codice:#0e120d; --ombra:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-tema="scuro"]{
+  --sfondo:#111410; --pannello:#191d17; --pannello-2:#1f241d; --bordo:#2e352b;
+  --testo:#e7eae2; --tenue:#98a08f; --acc:#5ecf8e; --acc-2:#17301f;
+  --oro:#e0b854; --oro-2:#2b2413; --rosso:#f08a7c; --rosso-2:#2e1a17;
+  --blu:#78aef2; --blu-2:#182437;
+  --codice:#0e120d; --ombra:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+/* ══ Base ════════════════════════════════════════════════════════════ */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:5rem}
+body{margin:0;background:var(--sfondo);color:var(--testo);font-family:var(--testo-font);
+  font-size:16.5px;line-height:1.68;-webkit-text-size-adjust:100%}
+a{color:var(--acc);text-underline-offset:2px}
+h1,h2,h3,h4{line-height:1.25;font-weight:650;letter-spacing:-.01em}
+h2{font-size:1.65rem;margin:0 0 .2rem}
+h3{font-size:1.2rem;margin:2.2rem 0 .5rem}
+h4{font-size:1rem;margin:1.6rem 0 .4rem;color:var(--tenue);text-transform:uppercase;
+  letter-spacing:.06em;font-size:.8rem}
+p{margin:.85rem 0}
+strong{font-weight:650}
+code{font-family:var(--mono);font-size:.88em;background:var(--codice);
+  border:1px solid var(--bordo);border-radius:4px;padding:.08em .34em}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
+
+/* ══ Barra alta ══════════════════════════════════════════════════════ */
+#avanzamento{position:fixed;top:0;left:0;height:3px;background:var(--acc);z-index:60;
+  width:0;transition:width .08s linear}
+header.alta{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--sfondo) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--bordo)}
+.alta-int{display:flex;align-items:center;gap:.65rem;padding:.55rem .9rem;max-width:1400px;margin:0 auto}
+.marchio{display:flex;align-items:center;gap:.5rem;font-weight:680;letter-spacing:-.02em;
+  text-decoration:none;color:var(--testo);white-space:nowrap}
+.marchio b{color:var(--acc)}
+.marchio small{font-weight:450;color:var(--tenue);font-size:.72rem;letter-spacing:.02em}
+.btn{background:var(--pannello);border:1px solid var(--bordo);color:var(--testo);
+  border-radius:8px;padding:.42rem .7rem;font:inherit;font-size:.85rem;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.4rem;line-height:1}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.btn.pieno{background:var(--acc);border-color:var(--acc);color:var(--sfondo);font-weight:600}
+.btn.pieno:hover{filter:brightness(1.08);color:var(--sfondo)}
+#apri-menu{display:none}
+
+/* ══ Ricerca ═════════════════════════════════════════════════════════ */
+.ricerca{position:relative;flex:1;max-width:420px;margin-left:auto}
+.ricerca input{width:100%;padding:.45rem .7rem .45rem 2rem;border-radius:8px;
+  border:1px solid var(--bordo);background:var(--pannello);color:var(--testo);font:inherit;font-size:.88rem}
+.ricerca svg{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;color:var(--tenue);pointer-events:none}
+#esiti{position:absolute;top:calc(100% + .4rem);left:0;right:0;background:var(--pannello);
+  border:1px solid var(--bordo);border-radius:10px;box-shadow:var(--ombra);max-height:64vh;
+  overflow:auto;display:none;z-index:70}
+#esiti.aperto{display:block}
+#esiti button{display:block;width:100%;text-align:left;background:none;border:0;
+  border-bottom:1px solid var(--bordo);padding:.55rem .7rem;cursor:pointer;color:var(--testo);font:inherit}
+#esiti button:last-child{border-bottom:0}
+#esiti button:hover,#esiti button.sel{background:var(--acc-2)}
+#esiti .dove{display:block;font-size:.7rem;color:var(--acc);text-transform:uppercase;
+  letter-spacing:.05em;font-weight:600;margin-bottom:.15rem}
+#esiti .frase{display:block;font-size:.82rem;color:var(--tenue);line-height:1.45}
+#esiti mark,mark{background:var(--oro-2);color:var(--testo);border-radius:3px;padding:0 .15em}
+#esiti .vuoto{padding:.8rem .7rem;font-size:.85rem;color:var(--tenue)}
+
+/* ══ Impianto ════════════════════════════════════════════════════════ */
+.guscio{display:grid;grid-template-columns:274px minmax(0,1fr);gap:2.5rem;
+  max-width:1400px;margin:0 auto;padding:0 .9rem}
+nav.indice{position:sticky;top:3.6rem;align-self:start;height:calc(100vh - 4rem);
+  overflow-y:auto;padding:1.4rem 0 3rem;scrollbar-width:thin}
+nav.indice ol{list-style:none;margin:0;padding:0}
+nav.indice a{display:block;padding:.3rem .6rem .3rem .75rem;font-size:.87rem;
+  text-decoration:none;color:var(--tenue);border-left:2px solid transparent;border-radius:0 6px 6px 0}
+nav.indice a:hover{color:var(--testo);background:var(--pannello)}
+nav.indice a.attivo{color:var(--acc);border-left-color:var(--acc);background:var(--acc-2);font-weight:600}
+nav.indice .num{display:inline-block;width:1.5em;color:var(--acc);font-variant-numeric:tabular-nums;
+  font-size:.8em;font-weight:600}
+nav.indice .gruppo{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--tenue);font-weight:700;padding:1.3rem .75rem .35rem;opacity:.75}
+main{padding:1.4rem 0 6rem;min-width:0;max-width:820px}
+
+/* ══ Sezioni ═════════════════════════════════════════════════════════ */
+section{scroll-margin-top:4.5rem;padding-bottom:2.6rem;margin-bottom:2.6rem;
+  border-bottom:1px solid var(--bordo)}
+section:last-of-type{border-bottom:0}
+.occhiello{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--acc);margin-bottom:.3rem}
+.sommario{color:var(--tenue);font-size:1.02rem;margin:.3rem 0 1.6rem}
+section:target{animation:lampo 1.4s ease}
+@keyframes lampo{0%,40%{background:var(--acc-2)}100%{background:transparent}}
+.evidenzia-flash{animation:lampo2 1.8s ease}
+@keyframes lampo2{0%,35%{background:var(--oro-2);box-shadow:0 0 0 6px var(--oro-2)}100%{background:transparent;box-shadow:none}}
+
+/* ══ Copertina ═══════════════════════════════════════════════════════ */
+.copertina{background:var(--pannello);border:1px solid var(--bordo);border-radius:16px;
+  padding:1.8rem;margin-bottom:2.5rem;box-shadow:var(--ombra)}
+.copertina h1{font-size:2.1rem;margin:.2rem 0 .4rem;letter-spacing:-.025em}
+.copertina p{margin:.4rem 0 0;color:var(--tenue)}
+.pillole{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.1rem}
+.pillola{font-size:.76rem;background:var(--pannello-2);border:1px solid var(--bordo);
+  border-radius:999px;padding:.22rem .6rem;color:var(--tenue)}
+.pillola b{color:var(--testo)}
+
+/* ══ Riquadri ════════════════════════════════════════════════════════ */
+.riq{border-left:3px solid var(--acc);background:var(--acc-2);padding:.85rem 1rem;
+  border-radius:0 10px 10px 0;margin:1.3rem 0}
+.riq>:first-child{margin-top:0}.riq>:last-child{margin-bottom:0}
+.riq .et{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--acc);display:block;margin-bottom:.25rem}
+.riq.oro{border-left-color:var(--oro);background:var(--oro-2)}
+.riq.oro .et{color:var(--oro)}
+.riq.rosso{border-left-color:var(--rosso);background:var(--rosso-2)}
+.riq.rosso .et{color:var(--rosso)}
+.riq.neutro{border-left-color:var(--bordo);background:var(--pannello)}
+.riq.neutro .et{color:var(--tenue)}
+
+/* ══ Tabelle ═════════════════════════════════════════════════════════ */
+.tab-scroll{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--bordo);
+  border-radius:10px;background:var(--pannello)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:.5rem .75rem;border-bottom:1px solid var(--bordo);vertical-align:top}
+th{background:var(--pannello-2);font-weight:650;font-size:.8rem;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--tenue);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td code{background:transparent;border:0;padding:0;color:var(--acc)}
+
+/* ══ Codice ══════════════════════════════════════════════════════════ */
+.codice{position:relative;margin:1.3rem 0}
+.codice pre{margin:0;background:var(--codice);border:1px solid var(--bordo);border-radius:10px;
+  padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.83rem;line-height:1.6}
+.codice pre code{background:none;border:0;padding:0;font-size:inherit}
+.copia{position:absolute;top:.45rem;right:.45rem;opacity:0;transition:opacity .15s;
+  font-size:.72rem;padding:.25rem .5rem}
+.codice:hover .copia,.copia:focus{opacity:1}
+.k{color:var(--acc);font-weight:600}.s{color:var(--oro)}.c{color:var(--tenue);font-style:italic}
+.n{color:var(--rosso)}.t{color:var(--testo);font-weight:600}
+
+/* ══ Diagrammi ═══════════════════════════════════════════════════════ */
+.diag{margin:1.5rem 0;background:var(--pannello);border:1px solid var(--bordo);
+  border-radius:12px;padding:1rem;box-shadow:var(--ombra)}
+.diag svg{width:100%;height:auto;display:block}
+.diag figcaption{font-size:.78rem;color:var(--tenue);margin-top:.7rem;text-align:center}
+.diag [data-vai]{cursor:pointer}
+.diag [data-vai] rect,.diag [data-vai] circle{transition:filter .15s}
+.diag [data-vai]:hover rect,.diag [data-vai]:hover circle{filter:brightness(1.14)}
+.diag [data-vai]:hover text{text-decoration:underline}
+.sv-scatola{fill:var(--pannello-2);stroke:var(--bordo)}
+.sv-acc{fill:var(--acc-2);stroke:var(--acc)}
+.sv-oro{fill:var(--oro-2);stroke:var(--oro)}
+.sv-rosso{fill:var(--rosso-2);stroke:var(--rosso)}
+.sv-blu{fill:var(--blu-2);stroke:var(--blu)}
+.sv-t{fill:var(--testo);font-family:var(--testo-font);font-size:12px}
+.sv-tm{fill:var(--testo);font-family:var(--mono);font-size:11px}
+.sv-p{fill:var(--tenue);font-family:var(--testo-font);font-size:10px}
+.sv-tit{fill:var(--acc);font-family:var(--testo-font);font-size:11px;font-weight:700;
+  letter-spacing:.08em}
+.sv-linea{stroke:var(--tenue);fill:none;stroke-width:1.5}
+.sv-linea-acc{stroke:var(--acc);fill:none;stroke-width:1.8}
+
+/* ══ Flusso del tick ═════════════════════════════════════════════════ */
+.flusso{list-style:none;counter-reset:p;margin:1.4rem 0;padding:0;position:relative}
+.flusso::before{content:"";position:absolute;left:13px;top:14px;bottom:14px;width:2px;
+  background:var(--bordo)}
+.flusso li{position:relative;padding:0 0 0 2.6rem;margin:0 0 .3rem}
+.flusso button{background:none;border:0;font:inherit;color:var(--testo);text-align:left;
+  cursor:pointer;padding:.32rem .5rem;border-radius:7px;width:100%;font-size:.92rem}
+.flusso button:hover{background:var(--pannello)}
+.flusso li::before{counter-increment:p;content:counter(p);position:absolute;left:0;top:.36rem;
+  width:28px;height:28px;border-radius:50%;background:var(--pannello);border:1px solid var(--bordo);
+  display:grid;place-items:center;font-size:.72rem;font-weight:700;color:var(--acc);
+  font-variant-numeric:tabular-nums}
+.flusso li.aperto::before{background:var(--acc);color:var(--sfondo);border-color:var(--acc)}
+.flusso .dett{display:none;margin:.1rem 0 .8rem;padding:.6rem .8rem;background:var(--pannello);
+  border:1px solid var(--bordo);border-radius:8px;font-size:.86rem;color:var(--tenue)}
+.flusso li.aperto .dett{display:block}
+
+/* ══ Simulatore ══════════════════════════════════════════════════════ */
+.sim{background:var(--pannello);border:1px solid var(--bordo);border-radius:14px;
+  padding:1rem;margin:1.5rem 0;box-shadow:var(--ombra)}
+.sim-testa{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:.8rem}
+.sim-testa .tit{font-weight:650;font-size:.95rem;margin-right:auto}
+.sim-seme{display:flex;align-items:center;gap:.35rem;font-size:.8rem;color:var(--tenue)}
+.sim-seme input{width:6.5rem;padding:.35rem .5rem;border-radius:7px;border:1px solid var(--bordo);
+  background:var(--sfondo);color:var(--testo);font:inherit;font-family:var(--mono);font-size:.8rem}
+.sim-tela{background:var(--sfondo);border:1px solid var(--bordo);border-radius:10px;
+  overflow:hidden;min-height:230px;display:grid;place-items:center;padding:.5rem}
+.sim-tela svg{width:100%;height:auto;max-height:44vh}
+.sim-stato{margin-top:.7rem;font-size:.85rem;min-height:2.7em;color:var(--tenue);
+  background:var(--pannello-2);border-radius:8px;padding:.5rem .7rem;line-height:1.5}
+.sim-stato b{color:var(--testo)}
+.sim-stato .fase{color:var(--acc);font-weight:700;font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.07em;display:block}
+.sim-legenda{display:flex;flex-wrap:wrap;gap:.5rem .9rem;margin-top:.7rem;font-size:.76rem;color:var(--tenue)}
+.sim-legenda span{display:inline-flex;align-items:center;gap:.32rem}
+.sim-legenda i{width:11px;height:11px;border-radius:3px;border:1px solid var(--bordo);display:inline-block}
+.sim-dati{display:flex;flex-wrap:wrap;gap:1.1rem;margin-top:.7rem;font-size:.78rem;color:var(--tenue)}
+.sim-dati b{display:block;font-size:1.15rem;color:var(--testo);font-variant-numeric:tabular-nums;
+  font-weight:650;line-height:1.2}
+
+/* ══ Domande ═════════════════════════════════════════════════════════ */
+.dom{border:1px solid var(--bordo);border-radius:10px;margin:.6rem 0;background:var(--pannello);
+  overflow:hidden}
+.dom>summary{cursor:pointer;padding:.7rem .9rem;font-weight:600;font-size:.94rem;list-style:none;
+  display:flex;gap:.6rem;align-items:flex-start}
+.dom>summary::-webkit-details-marker{display:none}
+.dom>summary::before{content:"?";flex:0 0 auto;width:20px;height:20px;border-radius:50%;
+  background:var(--acc-2);color:var(--acc);display:grid;place-items:center;font-size:.72rem;
+  font-weight:800;margin-top:.15rem}
+.dom[open]>summary{border-bottom:1px solid var(--bordo);background:var(--pannello-2)}
+.dom .risp{padding:.2rem .9rem .8rem 2.2rem;font-size:.92rem}
+.dom .risp>:first-child{margin-top:.6rem}
+
+/* ══ Checklist ═══════════════════════════════════════════════════════ */
+.check{list-style:none;padding:0;margin:1.2rem 0}
+.check li{display:flex;gap:.7rem;align-items:flex-start;padding:.6rem .8rem;background:var(--pannello);
+  border:1px solid var(--bordo);border-radius:10px;margin-bottom:.5rem}
+.check .box{flex:0 0 auto;width:20px;height:20px;border:2px solid var(--rosso);border-radius:5px;
+  margin-top:.15rem}
+.check li.fatto .box{border-color:var(--acc);background:var(--acc);position:relative}
+.check li.fatto .box::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;
+  color:var(--sfondo);font-size:.75rem;font-weight:800}
+.check b{display:block}
+.check small{color:var(--tenue);font-size:.83rem;line-height:1.5;display:block;margin-top:.15rem}
+.check small b{display:inline;color:var(--testo)}
+
+/* ══ Su ══════════════════════════════════════════════════════════════ */
+#su{position:fixed;right:1rem;bottom:1rem;z-index:40;opacity:0;pointer-events:none;
+  transition:opacity .2s;box-shadow:var(--ombra);background:var(--pannello);width:40px;height:40px;
+  justify-content:center;padding:0}
+#su.visto{opacity:1;pointer-events:auto}
+
+/* ══ Mobile ══════════════════════════════════════════════════════════ */
+#velo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:55}
+@media (max-width:900px){
+  .guscio{grid-template-columns:minmax(0,1fr);gap:0;padding:0 1rem}
+  #apri-menu{display:inline-flex}
+  nav.indice{position:fixed;top:0;left:0;bottom:0;width:min(300px,84vw);height:100vh;z-index:56;
+    background:var(--pannello);border-right:1px solid var(--bordo);padding:1rem .4rem 3rem;
+    transform:translateX(-102%);transition:transform .22s ease}
+  nav.indice.aperta{transform:none;box-shadow:var(--ombra)}
+  #velo.visto{display:block}
+  .ricerca{max-width:none;order:9;flex-basis:100%;margin:0}
+  .alta-int{flex-wrap:wrap;padding:.5rem .6rem}
+  body{font-size:16px}
+  .copertina{padding:1.2rem}.copertina h1{font-size:1.65rem}
+  h2{font-size:1.4rem}
+  main{padding-top:1rem}
+}
+
+/* ══ Stampa ══════════════════════════════════════════════════════════ */
+@media print{
+  header.alta,nav.indice,#su,#avanzamento,.copia,.sim-testa,#velo{display:none!important}
+  .guscio{display:block;max-width:none;padding:0}
+  main{max-width:none;padding:0}
+  body{font-size:11pt;background:#fff;color:#000}
+  section{break-inside:auto;page-break-inside:auto;border-bottom:1px solid #ccc}
+  h2{page-break-after:avoid}
+  .dom{page-break-inside:avoid}
+  .dom .risp{display:block!important}
+  .codice pre{white-space:pre-wrap;word-break:break-word}
+}
+</style>
+</head>
+<body>
+<div id="avanzamento"></div>
+
+<header class="alta">
+  <div class="alta-int">
+    <button class="btn" id="apri-menu" aria-label="Apri l'indice" aria-expanded="false">☰</button>
+    <a class="marchio" href="#cima">
+      <span>J<b>Zelda</b></span>
+      <small>guida allo studio</small>
+    </a>
+    <div class="ricerca">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+      </svg>
+      <input id="cerca" type="search" placeholder="Cerca nella guida…  (premi /)"
+             autocomplete="off" spellcheck="false" aria-label="Cerca nella guida">
+      <div id="esiti" role="listbox"></div>
+    </div>
+    <button class="btn" id="tema" aria-label="Cambia tema">🌙</button>
+  </div>
+</header>
+
+<div id="velo"></div>
+
+<div class="guscio">
+<nav class="indice" id="indice" aria-label="Indice della guida"></nav>
+<main id="contenuto">
+<div class="copertina" id="cima">
+  <div class="occhiello">Progetto di programmazione a oggetti</div>
+  <h1>JZelda — guida allo studio</h1>
+  <p>Cosa fa il programma, come lo fa e perché è fatto così. Non è la relazione:
+     è il materiale su cui ripassare prima dell'orale.</p>
+  <div class="pillole">
+    <span class="pillola"><b>57</b> classi Java</span>
+    <span class="pillola"><b>11</b> package</span>
+    <span class="pillola"><b>~8.200</b> righe</span>
+    <span class="pillola"><b>8</b> piani · <b>30</b> template di stanza</span>
+    <span class="pillola">Java <b>21</b> · Swing</span>
+  </div>
+</div>
+
+<!-- ═══ 1 ═══════════════════════════════════════════════════════════ -->
+<section id="s1">
+  <div class="occhiello">Sezione 1</div>
+  <h2>Cos'è il gioco</h2>
+  <p class="sommario">Un dungeon crawler visto dall'alto: le regole in due minuti e i numeri che le governano.</p>
+
+  <p>JZelda è un dungeon crawler visto dall'alto ispirato al primo <em>The Legend of
+  Zelda</em>, con la struttura delle stanze presa da <em>The Binding of Isaac</em>.</p>
+
+  <p>Il giocatore controlla Link. Ogni piano del dungeon è un insieme di stanze
+  disposte su una griglia: si passa da una all'altra attraversando le porte, e non
+  c'è un percorso obbligato. In ogni piano c'è una stanza di partenza, una stanza
+  negozio, una stanza tesoro e una stanza con le scale per scendere al piano
+  successivo. Superati <strong>8 piani</strong> (<code>Constants.NUM_PIANI</code>)
+  si vince; finite le vite si perde.</p>
+
+  <h3>I numeri di base</h3>
+  <p>Stanno tutti in <code>jzelda/util/Constants.java</code>, in un posto solo.</p>
+  <div class="tab-scroll"><table>
+    <thead><tr><th>Cosa</th><th>Valore</th><th>Costante</th></tr></thead>
+    <tbody>
+      <tr><td>Dimensione di un tile</td><td>48 px</td><td><code>TILE_SIZE</code></td></tr>
+      <tr><td>Stanza</td><td>15 colonne × 9 righe (720 × 432 px)</td><td><code>MAPPA_COLONNE</code>, <code>MAPPA_RIGHE</code></td></tr>
+      <tr><td>Altezza HUD</td><td>68 px</td><td><code>HUD_ALTEZZA</code></td></tr>
+      <tr><td>Frequenza del loop</td><td>~62 tick/s (16 ms per passo)</td><td><code>MS_PER_FRAME</code></td></tr>
+      <tr><td>Vite iniziali / massime</td><td>3 / 6</td><td><code>PLAYER_VITE_INIZIALI</code>, <code>PLAYER_VITE_MAX</code></td></tr>
+      <tr><td>Velocità del giocatore</td><td>4 px per frame</td><td><code>PLAYER_VELOCITA</code></td></tr>
+      <tr><td>Piani</td><td>8</td><td><code>NUM_PIANI</code></td></tr>
+      <tr><td>Stanze per piano</td><td>da 6 a 9</td><td><code>STANZE_MIN</code> in <code>DungeonMap</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Attorno al gioco c'è il contorno: tre slot di profilo con avatar e nickname, un
+  menu principale, una schermata di impostazioni (volumi, hitbox di debug, contatore
+  FPS), una classifica persistente e una console dei trucchi che si apre premendo
+  <code>/</code>.</p>
+</section>
+
+<!-- ═══ 2 ═══════════════════════════════════════════════════════════ -->
+<section id="s2">
+  <div class="occhiello">Sezione 2</div>
+  <h2>Architettura MVC</h2>
+  <p class="sommario">Tre package, una regola sola che tiene in piedi tutto — e i due punti in cui il confine perde.</p>
+
+  <figure class="diag">
+    <svg viewBox="0 0 780 492" role="img" aria-label="Diagramma MVC di JZelda: il controller crea model e view, il model notifica la view via Observer">
+      <defs>
+        <marker id="fr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--tenue)"/>
+        </marker>
+        <marker id="fr-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--acc)"/>
+        </marker>
+      </defs>
+
+      <!-- controller -->
+      <rect x="215" y="12" width="350" height="80" rx="10" class="sv-acc" stroke-width="1.5"/>
+      <text x="233" y="36" class="sv-tit">CONTROLLER</text>
+      <g data-vai="#s4"><text x="233" y="58" class="sv-tm">GameController — game loop (Timer), trucchi</text></g>
+      <g data-vai="#s5"><text x="233" y="78" class="sv-tm">InputHandler — da KeyEvent ad Action</text></g>
+
+      <path d="M290 92 L290 122 L170 122 L170 172" class="sv-linea" marker-end="url(#fr)"/>
+      <path d="M490 92 L490 122 L610 122 L610 172" class="sv-linea" marker-end="url(#fr)"/>
+      <text x="230" y="116" class="sv-p" text-anchor="middle">crea</text>
+      <text x="550" y="116" class="sv-p" text-anchor="middle">crea + addObserver(view)</text>
+
+      <!-- model -->
+      <rect x="20" y="176" width="300" height="214" rx="10" class="sv-scatola" stroke-width="1.5"/>
+      <text x="38" y="202" class="sv-tit">MODEL</text>
+      <g data-vai="#s4"><text x="38" y="228" class="sv-tm">GameModel — stato + tick</text></g>
+      <g data-vai="#s7"><text x="38" y="252" class="sv-tm">entities/ — Entity, Player, Enemy</text></g>
+      <g data-vai="#s8"><text x="38" y="276" class="sv-tm">items/ — Item, Proiettile</text></g>
+      <g data-vai="#s6"><text x="38" y="300" class="sv-tm">map/ — GameMap, DungeonMap</text></g>
+      <g data-vai="#s11"><text x="38" y="324" class="sv-tm">profile/ — UserProfile, Leaderboard</text></g>
+      <g data-vai="#s8"><text x="38" y="348" class="sv-tm">shop/ — Shop (i prezzi)</text></g>
+      <text x="38" y="374" class="sv-p">zero Swing, zero jzelda.view</text>
+
+      <!-- view -->
+      <rect x="460" y="176" width="300" height="214" rx="10" class="sv-scatola" stroke-width="1.5"/>
+      <text x="478" y="202" class="sv-tit">VIEW</text>
+      <g data-vai="#s4"><text x="478" y="228" class="sv-tm">GamePanel — Observer, disegna</text></g>
+      <g data-vai="#s3"><text x="478" y="252" class="sv-tm">MainWindow — CardLayout</text></g>
+      <g data-vai="#s3"><text x="478" y="276" class="sv-tm">MenuPanel, SettingsPanel…</text></g>
+      <g data-vai="#s11"><text x="478" y="300" class="sv-tm">GameOverPanel, LeaderboardPanel</text></g>
+      <g data-vai="#s10"><text x="478" y="324" class="sv-tm">audio/AudioManager</text></g>
+      <text x="478" y="350" class="sv-p">l'unico che conosce Swing</text>
+
+      <!-- frecce fra model e view -->
+      <path d="M322 246 L456 246" class="sv-linea-acc" marker-end="url(#fr-acc)"/>
+      <text x="389" y="238" class="sv-p" text-anchor="middle" style="fill:var(--acc);font-weight:700">notifyObservers(GameEvento)</text>
+      <path d="M456 300 L322 300" class="sv-linea" marker-end="url(#fr)" stroke-dasharray="4 3"/>
+      <text x="389" y="292" class="sv-p" text-anchor="middle">getter (sola lettura)</text>
+
+      <!-- util -->
+      <rect x="20" y="404" width="740" height="74" rx="10" class="sv-scatola" stroke-width="1.5"/>
+      <text x="38" y="428" class="sv-tit">UTIL</text>
+      <g data-vai="#s9"><text x="38" y="446" class="sv-tm">Constants · GameSettings · SpriteManager · SpriteSheet · AnimazioneSprite · Action</text></g>
+      <g data-vai="#s15"><text x="38" y="462" class="sv-tm">Segnalatore — porta gli errori fino a schermo</text></g>
+    </svg>
+    <figcaption>Clicca una classe per saltare alla sezione che la spiega. La freccia
+    verde è l'unico canale che il Model ha verso la View.</figcaption>
+  </figure>
+
+  <div class="riq">
+    <span class="et">La regola che tiene in piedi tutto</span>
+    <p>Il package <code>model</code> non importa mai niente da <code>view</code>, né da
+    <code>javax.swing</code>. Se il Model deve dire qualcosa alla View lo fa in un
+    solo modo, notificando gli Observer. Questo si può verificare meccanicamente:</p>
+    <div class="codice"><pre><code>grep -r "javax.swing\|jzelda.view" jzelda/src/jzelda/model/   →  nessun risultato</code></pre></div>
+  </div>
+
+  <p>Il Controller è l'unico che conosce entrambi: costruisce il Model e la View,
+  li collega con <code>model.addObserver(view)</code> e fa girare il loop.</p>
+
+  <div class="riq oro">
+    <span class="et">Dove il confine perde — meglio ammetterlo prima che lo dica il professore</span>
+    <ul>
+      <li><code>GamePanel.disegnaMercante()</code> sa che nella stanza negozio c'è un
+      muro in una certa posizione: è una conoscenza del contenuto della stanza finita
+      nella View.</li>
+      <li><code>GameController.eseguiComandoTerminale()</code> è un interprete di
+      comandi di debug lungo ~150 righe dentro il Controller.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══ 3 ═══════════════════════════════════════════════════════════ -->
+<section id="s3">
+  <div class="occhiello">Sezione 3</div>
+  <h2>L'avvio, passo per passo</h2>
+  <p class="sommario">Dal <code>main()</code> alla prima stanza giocabile, e i due dettagli da saper spiegare.</p>
+
+  <div class="codice"><pre><code>JZelda.main()
+ └─ SwingUtilities.invokeLater(() -> new MainWindow())
+     └─ MainWindow()
+         ├─ CardLayout + JPanel contenitore, dimensione 720 × (432+68)
+         ├─ mostraPannello(new SlotSelectionPanel(this), "SLOT")
+         │    └─ ProfileManager.caricaTuttiIProfile()  → legge i 3 file .dat
+         ├─ AudioManager.playMusic("menu_theme.wav")
+         └─ pack(); setLocationRelativeTo(null); setVisible(true)</code></pre></div>
+
+  <p>Da qui in poi comanda l'utente, e tutto gira sull'Event Dispatch Thread:</p>
+
+  <div class="codice"><pre><code>SlotSelectionPanel, click su uno slot
+ ├─ slot vuoto  → mostraCreazioneProfilo(slot) → ProfileSetupPanel
+ │                 └─ conferma → new UserProfile(nickname, avatar)
+ │                              → ProfileManager.salvaProfile(profilo, slot)
+ │                              → mostraMenuPrincipale(profilo, slot)
+ └─ slot pieno  → mostraMenuPrincipale(profilo, slot)
+
+MenuPanel, "NUOVA PARTITA"
+ └─ MainWindow.mostraGioco()
+      ├─ chiudiPartita()                        ferma l'eventuale partita vecchia
+      ├─ new GameController(this, profilo)
+      │    ├─ new GameModel(profilo)
+      │    │    ├─ random = new Random()
+      │    │    ├─ dungeon = DungeonMap.generaCasuale(random)
+      │    │    ├─ poolOggettiSpeciali = shuffle([0..6])
+      │    │    ├─ assegnaOggettiSpecialiPiano()
+      │    │    ├─ inizializzaStanzaCorrente()   costruisce GameMap, nemici, item
+      │    │    ├─ new Player(spawnX, spawnY)    → carica gli sprite
+      │    │    └─ equipaggiaArma(SPADA_BASE)
+      │    ├─ new GamePanel(model, this)
+      │    ├─ model.addObserver(view)            ← qui si aggancia l'Observer
+      │    └─ view.addKeyListener(...)           un KeyAdapter che delega a InputHandler
+      ├─ mostraPannello(gamePanel, "GIOCO")
+      ├─ gameController.avvia()                  fa partire il Timer
+      ├─ gamePanel.requestFocusInWindow()        senza questo la tastiera non arriva
+      └─ AudioManager.playMusic("dungeon_theme.wav")</code></pre></div>
+
+  <h3>Due dettagli che vale la pena saper spiegare</h3>
+
+  <div class="riq">
+    <span class="et">Perché invokeLater nel main</span>
+    <p>Swing non è thread-safe: i componenti vanno creati e toccati solo dall'Event
+    Dispatch Thread. Il <code>main</code> gira su un thread diverso, quindi costruire
+    lì la finestra è una violazione — funziona quasi sempre, ma è scorretto e può
+    dare problemi intermittenti.</p>
+  </div>
+
+  <div class="riq">
+    <span class="et">Perché pack() e non setSize()</span>
+    <p>Al <code>JPanel</code> interno si dà un <code>setPreferredSize</code> di
+    720×500; <code>pack()</code> dimensiona il <code>JFrame</code> in modo che
+    <em>l'area utile</em> sia quella, tenendo conto di bordi e barra del titolo. Con
+    <code>setSize(720, 500)</code> sul frame, i bordi mangerebbero pixel all'area di
+    gioco.</p>
+  </div>
+</section>
+
+<!-- ═══ 4 ═══════════════════════════════════════════════════════════ -->
+<section id="s4">
+  <div class="occhiello">Sezione 4</div>
+  <h2>Il game loop</h2>
+  <p class="sommario">Un Swing Timer con passo fisso e accumulatore. La sezione più
+  probabile all'orale, e quella con la storia migliore da raccontare.</p>
+
+  <p>Il loop è un <strong><code>javax.swing.Timer</code></strong> con un
+  <strong>passo temporale fisso e un accumulatore</strong>. Il Timer sveglia il
+  controller ogni 8 ms, ma il gioco non avanza di un passo per ogni sveglia: si
+  guarda quanto <strong>tempo reale</strong> è passato e si eseguono tutti i passi
+  da 16 ms che ci stanno dentro.</p>
+
+  <figure class="diag">
+    <svg viewBox="0 0 780 230" role="img" aria-label="Schema del tick: sveglia ogni 8ms, accumulatore, ciclo di passi da 16ms">
+      <rect x="12" y="80" width="118" height="52" rx="9" class="sv-acc" stroke-width="1.5"/>
+      <text x="71" y="102" class="sv-t" text-anchor="middle" font-weight="650">Timer</text>
+      <text x="71" y="120" class="sv-p" text-anchor="middle">sveglia ogni 8 ms</text>
+
+      <path d="M132 106 L172 106" class="sv-linea" marker-end="url(#fr)"/>
+
+      <rect x="174" y="80" width="150" height="52" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="249" y="102" class="sv-tm" text-anchor="middle">tempoAccumulato</text>
+      <text x="249" y="120" class="sv-p" text-anchor="middle">+= tempo reale trascorso</text>
+
+      <path d="M326 106 L366 106" class="sv-linea" marker-end="url(#fr)"/>
+
+      <path d="M368 106 L448 62 L588 62 L588 150 L448 150 z" class="sv-oro" stroke-width="1.5"/>
+      <text x="500" y="100" class="sv-tm" text-anchor="middle">accumulato ≥ 16 ms</text>
+      <text x="500" y="118" class="sv-tm" text-anchor="middle">e passi &lt; 5 ?</text>
+
+      <path d="M588 106 L648 106" class="sv-linea" marker-end="url(#fr)"/>
+      <text x="618" y="98" class="sv-p" text-anchor="middle">no</text>
+      <rect x="650" y="80" width="118" height="52" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="709" y="110" class="sv-p" text-anchor="middle">fine del tick</text>
+
+      <path d="M500 150 L500 190 L360 190" class="sv-linea-acc" marker-end="url(#fr-acc)"/>
+      <text x="530" y="172" class="sv-p" style="fill:var(--acc);font-weight:700">sì</text>
+      <rect x="196" y="166" width="164" height="48" rx="9" class="sv-acc" stroke-width="1.5"/>
+      <text x="278" y="186" class="sv-tm" text-anchor="middle">model.aggiorna(input)</text>
+      <text x="278" y="203" class="sv-p" text-anchor="middle">−16 ms · passi++</text>
+      <path d="M196 190 L120 190 L120 132" class="sv-linea-acc" marker-end="url(#fr-acc)"/>
+
+      <text x="12" y="24" class="sv-tit">GameController.tick()</text>
+      <text x="12" y="44" class="sv-p">tutto sull'Event Dispatch Thread — un thread solo tocca lo stato</text>
+    </svg>
+  </figure>
+
+  <div class="codice"><pre><code class="lang-java">private static final int PASSO_MS             = Constants.MS_PER_FRAME; // 16
+private static final int INTERVALLO_TIMER_MS  = 8;
+private static final int MAX_PASSI_PER_SCATTO = 5;
+
+private void tick() {
+    long adesso    = System.nanoTime();
+    long trascorso = (adesso - ultimoIstante) / 1_000_000L;
+    ultimoIstante  = adesso;
+
+    if (inputHandler.consumaEsc()) { pausa = !pausa; view.setPausa(pausa); }
+    if (pausa) { tempoAccumulato = 0; return; }
+
+    tempoAccumulato += trascorso;
+
+    int passi = 0;
+    while (tempoAccumulato &gt;= PASSO_MS &amp;&amp; passi &lt; MAX_PASSI_PER_SCATTO) {
+        tempoAccumulato -= PASSO_MS;
+        passi++;
+        model.aggiorna(inputHandler);
+        if (!model.isInCorso()) { ferma(); mainWindow.mostraGameOver(model); return; }
+    }
+    if (passi == MAX_PASSI_PER_SCATTO) tempoAccumulato = 0;
+}</code></pre></div>
+
+  <div class="riq oro">
+    <span class="et">Perché il Timer chiede 8 ms e non 16</span>
+    <p>Su Windows le attese dei timer si agganciano al tick di sistema, che di
+    default è di circa 15,6 ms: un'attesa non finisce quando è scaduta, ma al primo
+    tick successivo. Chiedendo 16 ms si supera di un pelo il primo tick, quindi si
+    aspetta fino al secondo — <strong>31 ms invece di 16</strong>, cioè la metà degli
+    aggiornamenti al secondo.</p>
+    <p>Non è che il gioco "va a 30 fps ed è meno fluido": va proprio a <em>metà
+    velocità</em>, perché la logica è tarata sul frame. Link cammina piano, le
+    animazioni rallentano, i cooldown durano il doppio.</p>
+  </div>
+
+  <p>Chiedere 8 ms tiene la richiesta sotto la soglia. L'accumulatore però risolve il
+  problema alla radice: anche se le sveglie arrivassero irregolari, si contano i
+  millisecondi <strong>veri</strong> trascorsi, quindi in un secondo si eseguono
+  sempre 60 passi. La velocità del gioco non dipende più dalla precisione del timer.</p>
+
+  <p>Il tetto <code>MAX_PASSI_PER_SCATTO</code> evita la <em>spirale della
+  morte</em>: se una sveglia arriva molto in ritardo, l'accumulatore chiederebbe
+  tanti passi tutti insieme, che richiedono altro tempo, che accumula altro ritardo.
+  Oltre cinque passi si rinuncia a recuperare e si riparte da zero: meglio un
+  rallentamento visibile che un blocco.</p>
+
+  <p>In pausa l'accumulatore viene azzerato, altrimenti al ritorno il gioco
+  eseguirebbe in un colpo tutti i passi del tempo in cui è rimasto fermo.</p>
+
+  <p>Un <code>javax.swing.Timer</code> esegue il suo listener <strong>sull'EDT</strong>.
+  Quindi il tick del model, il disegno e i comandi della console girano tutti sullo
+  stesso thread: non esistono due thread che toccano le stesse liste, e non serve
+  nessun lock.</p>
+
+  <div class="riq rosso">
+    <span class="et">Prima era diverso — ed è il punto più interessante da raccontare</span>
+    <p>Il loop era un <code>Thread</code> a sé con <code>while (running)</code> e
+    <code>Thread.sleep()</code>. Quel thread chiamava <code>nemici.removeIf(...)</code>
+    mentre l'EDT, dentro <code>paintComponent</code>, faceva
+    <code>new ArrayList&lt;&gt;(nemici)</code> per disegnare. Copiare una
+    <code>ArrayList</code> mentre un altro thread ne rimuove elementi può lanciare
+    <code>ConcurrentModificationException</code> e far morire l'EDT: un crash
+    casuale, che capita magari una volta su venti partite.</p>
+    <p>C'era anche un commento che diceva che la copia difensiva rendeva la cosa
+    sicura — <strong>non è vero</strong>: la copia protegge chi itera il risultato,
+    non l'atto di copiare. Lo stesso thread chiamava
+    <code>mainWindow.mostraGameOver()</code>, che aggiunge componenti Swing: un'altra
+    violazione. Passando al <code>Timer</code> spariscono entrambi i problemi per
+    costruzione, senza aggiungere un solo <code>synchronized</code>.</p>
+  </div>
+
+  <h3>Cosa succede in un tick — <code>GameModel.aggiorna(InputHandler)</code></h3>
+  <p>I sedici passi, in ordine. Clicca un passo per il dettaglio.</p>
+
+  <ol class="flusso" id="flusso-tick">
+    <li><button type="button">Se la partita non è più in corso, esce subito</button>
+      <div class="dett">La guardia <code>isInCorso()</code> evita di simulare un frame
+      dopo la morte o la vittoria, mentre il controller sta ancora chiudendo il loop.</div></li>
+    <li><button type="button">Legge <b>una</b> azione di movimento e muove il giocatore</button>
+      <div class="dett">Priorità SU &gt; GIÙ &gt; SINISTRA &gt; DESTRA, poi
+      <code>giocatore.aggiorna(azione, mappa)</code>: il Player si sposta di
+      <code>velocita</code> pixel, controlla la collisione e avanza l'animazione di
+      camminata. Una sola direzione per tick, niente diagonali.</div></li>
+    <li><button type="button">Legge <b>una</b> direzione di attacco dalle frecce</button>
+      <div class="dett">Tasti separati da quelli di movimento, così si può camminare
+      all'indietro colpendo in avanti nello stesso frame.</div></li>
+    <li><button type="button">Se il boomerang è già in volo, salta l'attacco</button>
+      <div class="dett">Il controllo sta <em>prima</em> di <code>tentaAttacco()</code>:
+      altrimenti si consumerebbe il cooldown e partirebbe l'animazione di swing a
+      vuoto. Era un bug, corretto dopo la review.</div></li>
+    <li><button type="button"><code>tentaAttacco(direzione)</code> e smistamento per arma</button>
+      <div class="dett">Bacchetta → <code>sparaMagia</code>, boomerang →
+      <code>sparaBoomerang</code>, altrimenti spadata
+      (<code>controllaColpoSpada</code>).</div></li>
+    <li><button type="button">Avanza i contatori di attacco e di raccolta</button>
+      <div class="dett">Sono i timer delle animazioni: durata dello swing, cooldown,
+      e l'animazione di Link che alza l'oggetto sopra la testa.</div></li>
+    <li><button type="button">Freccia: se è premuto F, l'arco è sbloccato e il cooldown è finito, spara</button>
+      <div class="dett">Tre condizioni in <code>&amp;&amp;</code>. Il cooldown è
+      <code>FRECCIA_COOLDOWN_FRAME</code>, e la barra nera che si vede nell'HUD lo
+      disegna in proporzione.</div></li>
+    <li><button type="button">Bomba: se è premuto E, ne piazza una</button>
+      <div class="dett">Nasce una <code>BombaPiazzata</code>, che è una cosa diversa
+      dalla <code>Bomb</code> raccoglibile in inventario.</div></li>
+    <li><button type="button">Per ogni nemico: <code>aggiorna(...)</code>, poi <b>solo se vivo</b> <code>tentaSparo(...)</code></button>
+      <div class="dett">Il "solo se vivo" è il secondo bug corretto: un Octorok ucciso
+      da un tick di ustione nello stesso frame riusciva comunque a sparare, perché
+      <code>tentaSparo()</code> veniva chiamato incondizionatamente dopo
+      <code>aggiorna()</code>.</div></li>
+    <li><button type="button">Toglie i nemici morti e chiama <code>aggiornaPorte()</code></button>
+      <div class="dett"><code>nemici.removeIf(n -&gt; !n.isVivo())</code> <em>dopo</em>
+      il ciclo, non dentro: rimuovere durante un for-each lancerebbe
+      <code>ConcurrentModificationException</code>.</div></li>
+    <li><button type="button">Tick di ustione sul giocatore</button>
+      <div class="dett">Passa da <code>subisciDannoPassivo()</code>, non da
+      <code>subiDanno()</code>: il fuoco non deve far partire l'invincibilità da colpo.</div></li>
+    <li><button type="button">Raccolta oggetti, e rimozione di quelli raccolti</button>
+      <div class="dett">Tutto in <code>controllaRaccoltaItems()</code>, che scorre una
+      <b>copia</b> della lista perché <code>applicaEffetto()</code> può aggiungere un
+      oggetto a <code>items</code>.</div></li>
+    <li><button type="button">Bombe: timer, danni delle esplosioni, rimozione di quelle finite</button>
+      <div class="dett">L'esplosione fa danno in un quadrato attorno a sé e colpisce
+      <b>anche il giocatore</b>: si può morire con la propria bomba.</div></li>
+    <li><button type="button">Proiettili: movimento, danni in entrambe le direzioni, rimozione</button>
+      <div class="dett">Una sola lista polimorfa: il Model non sa se sta gestendo una
+      <code>Freccia</code>, una <code>Magia</code> o un <code>BoomerangVolante</code>.</div></li>
+    <li><button type="button">Uscita dalla stanza, scale, collisioni a contatto coi nemici</button>
+      <div class="dett"><code>controllaUscitaMappa()</code>,
+      <code>controllaScale()</code> e il contatto giocatore-nemico, tutti su
+      <code>Rectangle.intersects</code>.</div></li>
+    <li><button type="button"><code>setChanged(); notifyObservers();</code></button>
+      <div class="dett">L'unica riga che parla alla View, a fine tick: "è cambiato
+      qualcosa, ridisegnami".</div></li>
+  </ol>
+
+  <h3>Come il Model parla alla View</h3>
+  <p><code>GameModel extends java.util.Observable</code>,
+  <code>GamePanel implements Observer</code>. Il collegamento avviene in un punto
+  solo, nel costruttore del <code>GameController</code>:
+  <code>model.addObserver(view)</code>.</p>
+
+  <p>Ci sono due tipi di notifica:</p>
+  <ul>
+    <li><code>notifyObservers()</code> senza argomento significa "è cambiato
+    qualcosa, ridisegnami". È quella di fine tick e quella di tutti i setter.</li>
+    <li><code>notifyObservers(GameEvento.X)</code> significa "è cambiato qualcosa
+    <strong>e</strong> è successo questo fatto". La View lo riceve e ci suona sopra
+    il file corrispondente.</li>
+  </ul>
+
+  <div class="codice"><pre><code class="lang-java">@Override
+public void update(Observable o, Object arg) {
+    if (arg instanceof GameEvento) {
+        AudioManager.getInstance().play(((GameEvento) arg).getPercorsoFile());
+    }
+    repaint();
+}</code></pre></div>
+
+  <div class="riq">
+    <span class="et">Il pezzo di MVC meglio riuscito del progetto</span>
+    <p>Il Model non sa che esiste l'audio, sa solo che è stata sparata una freccia.
+    È la View a decidere che a quel fatto corrisponde un suono.</p>
+  </div>
+</section>
+
+<!-- ═══ 5 ═══════════════════════════════════════════════════════════ -->
+<section id="s5">
+  <div class="occhiello">Sezione 5</div>
+  <h2>L'input</h2>
+  <p class="sommario">Non una coda di eventi, ma un insieme di tasti premuti campionato una volta per tick.</p>
+
+  <div class="codice"><pre><code>tasto premuto
+  → KeyAdapter anonimo registrato sul GamePanel   (GameController, costruttore)
+      ├─ '/'  → apre la console dei trucchi
+      ├─ ESC con console aperta → la chiude e restituisce il focus al pannello
+      └─ altrimenti → inputHandler.keyPressed(e)
+            → Action azione = keyBindings.get(codiceTasto)
+            → azioniAttive.add(azione)</code></pre></div>
+
+  <div class="tab-scroll"><table>
+    <thead><tr><th>Tasto</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>W A S D</td><td><code>MOVE_UP</code> <code>MOVE_LEFT</code> <code>MOVE_DOWN</code> <code>MOVE_RIGHT</code></td></tr>
+      <tr><td>↑ ← ↓ →</td><td><code>ATTACK_UP</code> <code>ATTACK_LEFT</code> <code>ATTACK_DOWN</code> <code>ATTACK_RIGHT</code></td></tr>
+      <tr><td>E</td><td><code>PIAZZA_BOMBA</code></td></tr>
+      <tr><td>F</td><td><code>SPARA_FRECCIA</code></td></tr>
+      <tr><td>ESC</td><td>pausa (non è un'<code>Action</code>, è un flag a parte)</td></tr>
+      <tr><td><code>/</code></td><td>apre la console</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="riq">
+    <span class="et">Il punto da capire</span>
+    <p><code>InputHandler</code> non tiene una coda di eventi: tiene un
+    <code>Set&lt;Action&gt;</code> (un <code>EnumSet</code>) con i tasti
+    <strong>premuti in questo istante</strong>. Il game loop lo interroga una volta
+    per tick con <code>isAzioneAttiva(...)</code>.</p>
+    <p>Perché così: se si reagisse agli eventi di tastiera, la velocità del gioco
+    dipenderebbe dalla ripetizione automatica del sistema operativo — che ha un
+    ritardo iniziale e una frequenza propria. Tenendo lo stato si campiona a
+    frequenza fissa: tenendo premuto W, Link si muove esattamente di 4 px per tick,
+    sempre, su qualsiasi macchina.</p>
+  </div>
+
+  <p><code>Action</code> è lo strato di disaccoppiamento: sotto
+  <code>InputHandler</code> nessuno vede più un codice di tasto.
+  <code>Player.aggiorna</code> fa <code>switch</code> su <code>Action</code>, e lo
+  stesso enum viene riusato da <code>Proiettile</code> per rappresentare la direzione
+  di volo.</p>
+
+  <div class="riq neutro">
+    <span class="et">Dettaglio da conoscere</span>
+    <p><code>InputHandler implements KeyListener</code> ma <strong>non viene mai
+    registrato</strong> come listener. Il <code>KeyAdapter</code> anonimo gli delega a
+    mano, perché prima deve intercettare <code>/</code> e ESC. Di conseguenza
+    <code>keyTyped()</code> non viene mai chiamato.</p>
+  </div>
+
+  <p>Tasti separati per muoversi e per attaccare (WASD + frecce, non "spazio per
+  attaccare nella direzione in cui guardo") perché così le due cose possono avvenire
+  nello stesso frame: si può camminare all'indietro colpendo in avanti.</p>
+</section>
+
+<!-- ═══ 6 ═══════════════════════════════════════════════════════════ -->
+<section id="s6">
+  <div class="occhiello">Sezione 6</div>
+  <h2>Mappe, stanze e generazione del dungeon</h2>
+  <p class="sommario">Due classi da non confondere, un formato di file, e l'algoritmo
+  che genera un piano — qui sotto lo puoi far girare.</p>
+
+  <div class="riq">
+    <span class="et">Non confonderle mai</span>
+    <ul>
+      <li><strong><code>GameMap</code> = una stanza.</strong> La griglia di tile, dove
+      nasce il giocatore, dove vanno messi nemici e oggetti, dove sono le porte.</li>
+      <li><strong><code>DungeonMap</code> = un piano.</strong> Quali stanze esistono,
+      dove stanno l'una rispetto all'altra, di che tipo sono. Non sa cosa c'è dentro
+      una stanza.</li>
+    </ul>
+  </div>
+
+  <h3>Il formato dei file di stanza</h3>
+  <p>I template stanno in <code>jzelda/resources/levels/stanze/</code>, sono file di
+  testo di 15 colonne per 9 righe. Esempio (<code>Negozio.txt</code>):</p>
+
+  <div class="codice"><pre><code>WWWWWWWWWWWWWWW
+W.............W
+W.............W
+W......W......W
+W.............W
+W..C.C.X.C.C..W
+W.............W
+W.............W
+WWWWWWWWWWWWWWW</code></pre></div>
+
+  <p>La legenda, che sta in <code>GameMap.creaTile()</code> e nel ciclo di
+  <code>caricaFile()</code>:</p>
+
+  <div class="tab-scroll"><table>
+    <thead><tr><th>Car.</th><th>Significato</th><th>Tile sotto</th><th>Blocca?</th></tr></thead>
+    <tbody>
+      <tr><td><code>.</code></td><td>pavimento</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>W</code></td><td>muro</td><td>MURO</td><td><strong>sì</strong></td></tr>
+      <tr><td><code>E</code></td><td>erba (decorativa, nasconde chi ci sta sopra)</td><td>ERBA</td><td>no</td></tr>
+      <tr><td><code>A</code></td><td>acqua</td><td>ACQUA</td><td><strong>sì</strong></td></tr>
+      <tr><td><code>#</code></td><td>roccia</td><td>ROCCIA</td><td><strong>sì</strong></td></tr>
+      <tr><td><code>P</code></td><td>punto di nascita del giocatore</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>O</code></td><td>nemico Goriya (tipo 0)</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>S</code></td><td>nemico Darknut (tipo 1)</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>K</code></td><td>nemico Octorok (tipo 2)</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>H</code></td><td>cuore (item tipo 0)</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>R</code></td><td>rupia (tipo 1)</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>B</code></td><td>bomba (tipo 2)</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>C</code></td><td>slot casuale cuore/bomba (tipo 3)</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>X</code></td><td>slot oggetto speciale (tipo 4)</td><td>PAVIMENTO</td><td>no</td></tr>
+      <tr><td><code>U</code></td><td>scale per il piano dopo</td><td>PAVIMENTO</td><td>no</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Tutti i caratteri che segnano uno spawn danno un tile di pavimento: l'oggetto o
+  il nemico ci viene messo <strong>sopra</strong>, il pavimento sotto resta
+  calpestabile.</p>
+
+  <div class="riq oro">
+    <span class="et">Perché 15×9 e non 16×10?</span>
+    <p>Perché sono entrambi dispari. Con un numero dispari di colonne esiste
+    <strong>una</strong> colonna centrale esatta (la settima), non una coppia: la
+    porta può stare esattamente al centro del lato. Con 16 colonne bisognerebbe
+    scegliere fra due colonne centrali, e la porta risulterebbe storta.</p>
+  </div>
+
+  <h3>Come <code>GameMap</code> legge un file</h3>
+  <p><code>caricaFile()</code> fa due passate.</p>
+  <p><strong>Prima passata:</strong> legge tutte le righe in una lista e calcola
+  <code>maxColonne</code>. Le dimensioni vengono dal file, non da
+  <code>Constants</code>: se un template ha una misura diversa il gioco lo segnala su
+  <code>System.err</code> ma funziona lo stesso.</p>
+  <p><strong>Seconda passata:</strong> alloca <code>Tile[righe][colonne]</code>, mette
+  come default il punto di nascita al centro geometrico, e per ogni carattere chiama
+  <code>creaTile(c)</code> e registra le posizioni speciali. Tutte le coordinate
+  vengono convertite subito in <strong>pixel</strong>
+  (<code>colonna * TILE_SIZE</code>), così il resto del codice non deve più ragionare
+  in celle.</p>
+  <p>Se il file non esiste, è vuoto o il percorso è <code>null</code>, si ripiega su
+  <code>creaMappaDefault()</code>: una stanza vuota con il perimetro di muri.</p>
+
+  <h3>Le porte</h3>
+  <p><code>GameModel.aggiornaPorte()</code> viene chiamata ad ogni tick e per ogni
+  lato fa:</p>
+  <div class="codice"><pre><code class="lang-java">boolean aperta = statoStanze.getOrDefault(chiave, IN_COMBATTIMENTO).porteAperte();
+mappa.impostaPortaNord(aperta &amp;&amp; vicinoNord, vicinoNord);
+// ... e così per gli altri tre lati</code></pre></div>
+
+  <p>Ogni <code>impostaPortaX</code> riscrive la tile centrale di quel lato: pavimento
+  se la porta è aperta, muro se è chiusa. Se dall'altra parte c'è davvero una stanza,
+  <code>scavaIngresso</code> mette a pavimento anche la tile subito dentro, così non
+  si resta incastrati contro un ostacolo del template appena entrati.</p>
+
+  <p>Sono quattro metodi separati (<code>impostaPortaNord</code>, <code>Sud</code>,
+  <code>Ovest</code>, <code>Est</code>) invece di uno solo che prende una direzione:
+  l'enum <code>Direzione</code> è definito in <code>GameModel</code>, e
+  <code>model.map</code> è un livello più basso che non deve dipendere da
+  <code>GameModel</code>.</p>
+
+  <h3>La generazione di un piano — <code>DungeonMap.generaCasuale(Random)</code></h3>
+
+  <div class="sim" id="sim">
+    <div class="sim-testa">
+      <span class="tit">Simulatore — l'algoritmo vero, in esecuzione</span>
+      <label class="sim-seme">seme
+        <input id="sim-seme" type="text" value="42" inputmode="numeric" spellcheck="false"
+               aria-label="Seme del generatore">
+      </label>
+      <button class="btn pieno" id="sim-genera" type="button">Genera piano</button>
+      <button class="btn" id="sim-caso" type="button">Seme casuale</button>
+      <button class="btn" id="sim-passo" type="button">Passo-passo</button>
+      <button class="btn" id="sim-avanti" type="button" disabled>Avanti ▶</button>
+    </div>
+    <div class="sim-tela" id="sim-tela"></div>
+    <div class="sim-stato" id="sim-stato"></div>
+    <div class="sim-legenda">
+      <span><i style="background:var(--acc-2);border-color:var(--acc)"></i> Inizio</span>
+      <span><i style="background:var(--pannello-2)"></i> Normale</span>
+      <span><i style="background:var(--oro-2);border-color:var(--oro)"></i> Negozio</span>
+      <span><i style="background:var(--blu-2);border-color:var(--blu)"></i> Tesoro</span>
+      <span><i style="background:var(--rosso-2);border-color:var(--rosso)"></i> Uscita (scale)</span>
+    </div>
+    <div class="sim-dati">
+      <span><b id="sim-n-stanze">—</b> stanze</span>
+      <span><b id="sim-n-tent">—</b> tentativi del walk</span>
+      <span><b id="sim-n-dist">—</b> distanza dell'uscita</span>
+    </div>
+  </div>
+
+  <div class="riq">
+    <span class="et">Lo stesso seme dà lo stesso piano del gioco vero</span>
+    <p>Il simulatore non è una finta: è il port riga per riga di
+    <code>DungeonMap.generaCasuale</code>, e usa una copia in JavaScript del
+    generatore congruenziale di <code>java.util.Random</code> (a 48 bit) e
+    dell'ordine di iterazione di <code>java.util.HashMap</code>. Mettendo lo stesso
+    seme, <code>new Random(seme)</code> in Java produce <strong>esattamente</strong>
+    questo piano. È stato verificato confrontando l'output su 400 semi.</p>
+  </div>
+
+  <p>La generazione si fa in tre passaggi.</p>
+
+  <h4>1. Random walk (<code>eseguiRandomWalk</code>)</h4>
+  <p>Parte dalla cella <code>"0,0"</code>, che diventa la stanza numero 1 di tipo
+  <code>INIZIO</code>. Decide quante stanze fare (<code>6 + rng.nextInt(4)</code>,
+  quindi da 6 a 9), poi ripete: prende a caso una cella già occupata, prende a caso
+  uno dei 4 vicini ortogonali, e se è libera la occupa. Ha un tetto di 500 tentativi
+  per non rischiare un ciclo infinito.</p>
+
+  <p>Le celle sono chiavi di una <code>HashMap</code> nella forma
+  <code>"riga,colonna"</code>, quindi le coordinate negative non danno fastidio: non
+  serve normalizzare la griglia.</p>
+
+  <div class="riq">
+    <span class="et">La proprietà garantita per costruzione</span>
+    <p>Facendo crescere le stanze <strong>sempre a partire da una già occupata</strong>,
+    il piano è connesso per costruzione: non può esistere una stanza irraggiungibile.
+    Non serve nessun controllo di connessione a posteriori.</p>
+  </div>
+
+  <h4>2. Assegnazione delle stanze speciali (<code>assegnaStanzeSpeciali</code>)</h4>
+  <p>Fa una <strong>visita in ampiezza (BFS)</strong> partendo dalla stanza 1 e
+  calcola la distanza di ogni stanza dall'ingresso. Le <strong>scale</strong>
+  (<code>USCITA</code>) finiscono in una cella scelta a caso fra quelle a
+  <strong>distanza massima</strong>: così l'uscita è sempre il più lontano possibile
+  dall'entrata, e non capita mai di trovarla nella stanza accanto.</p>
+  <p>Poi <strong>negozio</strong> e <strong>tesoro</strong> vanno in due celle
+  diverse scelte a caso fra le rimanenti, escludendo partenza e uscita, con un
+  controllo esplicito perché <code>rng.nextInt(0)</code> lancerebbe un'eccezione se
+  le celle libere fossero meno di due.</p>
+
+  <div class="codice"><pre><code class="lang-java">if (!rimanenti.isEmpty()) {
+    String chiaveNegozio = rimanenti.remove(rng.nextInt(rimanenti.size()));
+    tipoPerPosizione.put(chiaveNegozio, TipoStanza.NEGOZIO);
+}</code></pre></div>
+
+  <h4>3. Assegnazione dei template (<code>assegnaTemplate</code>)</h4>
+  <p>Per ogni cella chiede a <code>StanzePool.scegliCasuale(tipo, rng)</code> un file
+  adatto: 30 template per le stanze normali, uno solo per iniziale, negozio, tesoro e
+  scale. La scelta si fa <strong>una volta sola per piano</strong> e si memorizza — se
+  il template venisse ripescato ad ogni ingresso, la stanza cambierebbe forma ogni
+  volta che ci si rientra.</p>
+
+  <h3>Il passaggio tra stanze e la memoria di quello che è successo</h3>
+  <p>Quando il giocatore tocca il bordo della stanza,
+  <code>controllaUscitaMappa()</code> calcola la cella vicina, controlla che esista e
+  chiama <code>caricaStanza(r, c)</code>, che ricostruisce la <code>GameMap</code> e
+  riposiziona il giocatore sul lato opposto.</p>
+
+  <p>Il Model tiene tre strutture per non far "resettare" il piano:</p>
+  <div class="tab-scroll"><table>
+    <thead><tr><th>Struttura</th><th>A cosa serve</th></tr></thead>
+    <tbody>
+      <tr><td><code>statoStanze</code></td><td>quali stanze sono già state ripulite, così i nemici non ricompaiono</td></tr>
+      <tr><td><code>itemsStanze</code></td><td>quali oggetti sono rimasti a terra in ogni stanza</td></tr>
+      <tr><td><code>stanzeVisitate</code></td><td>quali stanze mostrare nella minimappa</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="riq oro">
+    <span class="et">La finezza su itemsStanze</span>
+    <p><strong>Si salva la stessa lista, non una copia.</strong> Finché si è nella
+    stanza, <code>items</code> e la lista memorizzata sono lo stesso oggetto, quindi
+    raccogliere un oggetto o far cadere un'arma la modifica già, e non serve un
+    salvataggio esplicito all'uscita. Se si ricostruisse la lista da
+    <code>GameMap.getSpawnItems()</code> ad ogni ingresso, gli oggetti già raccolti
+    ricomparirebbero e un'arma lasciata a terra sparirebbe.</p>
+  </div>
+
+  <p>Tutte e tre vengono azzerate al cambio di piano: hanno senso solo dentro lo
+  stesso piano.</p>
+
+  <h3>Il cambio di piano</h3>
+  <p><code>controllaScale()</code> verifica, solo nelle stanze di tipo
+  <code>USCITA</code>, se la hitbox del giocatore tocca la tile delle scale. Se sì
+  chiama <code>avanzaPiano()</code>:</p>
+
+  <div class="codice"><pre><code class="lang-java">private void avanzaPiano() {
+    if (pianoCorrente &gt;= Constants.NUM_PIANI) {
+        vittoria = true;
+        inCorso  = false;
+        setChanged(); notifyObservers();
+        return;
+    }
+    pianoCorrente++;
+    generaNuovoPianoCorrente();
+}</code></pre></div>
+
+  <div class="riq rosso">
+    <span class="et">Il controllo va fatto prima di incrementare</span>
+    <p>Altrimenti alla vittoria <code>pianoCorrente</code> varrebbe 9 con
+    <code>NUM_PIANI</code> uguale a 8, e in classifica finirebbe scritto "piano 9 su
+    8". Era esattamente il bug che c'era — e nel file
+    <code>classifica.txt</code> restano le righe che lo dimostrano.</p>
+  </div>
+
+  <p>La vittoria riusa lo stesso segnale del game over — <code>inCorso = false</code>
+  — con in più un flag <code>vittoria</code> per distinguere le due schermate: il
+  loop non ha bisogno di sapere niente di nuovo.</p>
+
+  <h3>Il pool degli oggetti speciali</h3>
+  <p>All'inizio della partita si mescolano i codici da 0 a 6, cioè i sette oggetti
+  speciali: Bacchetta, Spada Potenziata, Boomerang, Arco, Candela, Armatura,
+  Scarpette. Ad ogni piano se ne consumano al massimo due — uno per la <code>X</code>
+  della stanza tesoro (gratis) e uno per la <code>X</code> del negozio (a pagamento).
+  Così <strong>lo stesso oggetto non può ricomparire in un piano successivo</strong>.
+  Quando il pool finisce, la <code>X</code> degrada a un mucchietto di rupie.</p>
+</section>
+
+<!-- ═══ 7 ═══════════════════════════════════════════════════════════ -->
+<section id="s7">
+  <div class="occhiello">Sezione 7</div>
+  <h2>Entità e combattimento</h2>
+  <p class="sommario">Cosa sta in <code>Entity</code> e perché, e le tre IA che rendono
+  i nemici davvero diversi.</p>
+
+  <figure class="diag">
+    <svg viewBox="0 0 780 268" role="img" aria-label="Gerarchia delle entità: Entity, Player, Enemy e i tre nemici">
+      <g data-vai="#s7">
+        <rect x="310" y="10" width="160" height="52" rx="9" class="sv-acc" stroke-width="1.5"/>
+        <text x="390" y="32" class="sv-tm" text-anchor="middle" font-weight="700">Entity</text>
+        <text x="390" y="50" class="sv-p" text-anchor="middle">astratta</text>
+      </g>
+      <path d="M390 62 L390 78 L205 78 L205 96" class="sv-linea"/>
+      <path d="M390 62 L390 78 L570 78 L570 96" class="sv-linea"/>
+
+      <rect x="120" y="96" width="170" height="52" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="205" y="118" class="sv-tm" text-anchor="middle" font-weight="700">Player</text>
+      <text x="205" y="136" class="sv-p" text-anchor="middle">vel 4 · vite 3→6</text>
+
+      <rect x="490" y="96" width="160" height="52" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="570" y="118" class="sv-tm" text-anchor="middle" font-weight="700">Enemy</text>
+      <text x="570" y="136" class="sv-p" text-anchor="middle">astratta · tentaSparo()</text>
+
+      <path d="M570 148 L570 166 L375 166 L375 186" class="sv-linea"/>
+      <path d="M570 148 L570 166 L535 166 L535 186" class="sv-linea"/>
+      <path d="M570 148 L570 166 L695 166 L695 186" class="sv-linea"/>
+
+      <rect x="300" y="186" width="150" height="70" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="375" y="206" class="sv-tm" text-anchor="middle" font-weight="700">Goriya</text>
+      <text x="375" y="223" class="sv-p" text-anchor="middle">vaga a caso</text>
+      <text x="375" y="240" class="sv-p" text-anchor="middle">vel 2 · vita 2</text>
+
+      <rect x="460" y="186" width="150" height="70" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="535" y="206" class="sv-tm" text-anchor="middle" font-weight="700">Darknut</text>
+      <text x="535" y="223" class="sv-p" text-anchor="middle">insegue</text>
+      <text x="535" y="240" class="sv-p" text-anchor="middle">vel 1 · vita 3</text>
+
+      <rect x="620" y="186" width="150" height="70" rx="9" class="sv-oro" stroke-width="1.5"/>
+      <text x="695" y="206" class="sv-tm" text-anchor="middle" font-weight="700">Octorok</text>
+      <text x="695" y="223" class="sv-p" text-anchor="middle">fermo, spara a vista</text>
+      <text x="695" y="240" class="sv-p" text-anchor="middle">vel 0 · vita 2</text>
+
+      <text x="12" y="24" class="sv-tit">GERARCHIA ENTITY</text>
+      <text x="12" y="42" class="sv-p">in oro: l'unico che ridefinisce tentaSparo()</text>
+    </svg>
+  </figure>
+
+  <p><strong><code>Entity</code></strong> contiene tutto quello che accomuna giocatore
+  e nemici: posizione, dimensioni, velocità, vita, <code>getHitbox()</code>, la
+  collisione coi muri, il sistema di invincibilità e quello di ustione. Dichiara
+  astratti <code>aggiorna(...)</code> e <code>disegna(...)</code>.</p>
+
+  <h3>La collisione è più interessante di quanto sembri</h3>
+  <p><strong>Primo, aggancia la posizione dentro i limiti della mappa</strong> prima di
+  calcolare gli indici. Senza, con <code>/speed</code> alto un singolo passo può
+  superare il bordo di più di un tile: gli indici finirebbero fuori griglia e
+  verrebbero trattati come collisione, anche quando la tile di bordo era una porta
+  aperta — e ci si ritroverebbe bloccati a un pelo dalla porta.</p>
+
+  <p><strong>Secondo, il rettangolo di test è più piccolo della hitbox reale</strong>
+  di 8 px per lato. Il movimento è continuo e non agganciato alla griglia, quindi
+  bastano pochi pixel di disallineamento per far sporgere un angolo dentro una roccia
+  e rendere impossibile passare in un corridoio largo esattamente un tile. Il margine
+  di tolleranza assorbe il disallineamento senza permettere di attraversare muri veri.</p>
+
+  <h3>L'invincibilità ha due forme</h3>
+  <div class="tab-scroll"><table>
+    <thead><tr><th>Campo</th><th>Quando</th><th>Lampeggia?</th></tr></thead>
+    <tbody>
+      <tr><td><code>frameInvincibile</code></td><td>dopo aver preso un colpo</td><td><strong>sì</strong></td></tr>
+      <tr><td><code>frameInvincibilitaSilenziosa</code></td><td>quando si entra in una stanza nuova</td><td>no</td></tr>
+    </tbody>
+  </table></div>
+  <p>Il lampeggio significa "ho appena preso un colpo", e vederlo ad ogni cambio di
+  stanza sarebbe fuorviante.</p>
+
+  <div class="riq oro">
+    <span class="et">Perché l'ustione usa subisciDannoPassivo e non subiDanno</span>
+    <p>L'ustione (dalla Candela) sta in <code>Entity</code> e non in
+    <code>Enemy</code>, così anche il giocatore può prendere fuoco. Il tick di
+    ustione usa <code>subisciDannoPassivo()</code> perché <code>subiDanno</code> fa
+    partire l'invincibilità da colpo: un nemico in fiamme diventerebbe immune alle
+    spadate vere per qualche frame ad ogni tick di fuoco.
+    <strong>Sarebbe scudato dal suo stesso incendio.</strong></p>
+  </div>
+
+  <h3>Le tre IA, in dettaglio</h3>
+
+  <div class="riq neutro">
+    <span class="et">Goriya — movimento casuale</span>
+    <p>Sceglie una direzione fra quattro e la tiene per 120 frame (circa due secondi),
+    oppure finché non sbatte contro un muro; in entrambi i casi ne pesca un'altra a
+    caso. <strong>Non sa dove sia il giocatore</strong>: i parametri
+    <code>playerX</code> e <code>playerY</code> gli arrivano ma non li usa. Fa danno
+    solo a contatto.</p>
+  </div>
+
+  <div class="riq neutro">
+    <span class="et">Darknut — inseguimento</span>
+    <p>Calcola <code>distanzaX</code> e <code>distanzaY</code> dal giocatore e si muove
+    <strong>prima lungo l'asse dove la distanza è maggiore</strong>; se quel movimento
+    è bloccato da un muro, ripiega sull'altro asse. È il modo più semplice di aggirare
+    un ostacolo senza fare un vero pathfinding: non è A*, ma basta per un nemico che
+    deve solo dare fastidio. Più lento e più resistente del Goriya, così il giocatore
+    lo percepisce come "il tank".</p>
+  </div>
+
+  <div class="riq neutro">
+    <span class="et">Octorok — torretta</span>
+    <p>Velocità zero, non si muove mai. Ad ogni frame incrementa un contatore; ogni 90
+    frame (circa un secondo e mezzo) prova a sparare, ma solo se
+    <code>vedeGiocatore(...)</code> dice di sì. Quel metodo <strong>non</strong>
+    controlla l'allineamento: traccia la retta dal proprio centro al centro del
+    giocatore, la percorre a piccoli passi e controlla che nessun tile lungo il
+    tragitto sia solido. È un <strong>raycast di linea di vista</strong>, quindi
+    l'Octorok può sparare anche in diagonale, ma non attraverso un muro.</p>
+    <p>Il proiettile è una <code>Magia</code> marcata con
+    <code>marcaSparatoDaNemico()</code>, così i controlli di danno sanno che deve
+    colpire il giocatore e non i nemici. <code>Octorok</code> è l'unico che
+    ridefinisce <code>tentaSparo()</code>, che in <code>Enemy</code> è un hook vuoto.</p>
+  </div>
+
+  <p>Tutti i controlli di collisione — giocatore contro nemico, spada contro nemico,
+  proiettile contro entità, esplosione contro chiunque, giocatore contro oggetto —
+  passano da <code>Rectangle.intersects(...)</code> su hitbox costruite allo stesso
+  modo. Un solo meccanismo, nessun confronto di coordinate scritto a mano.</p>
+</section>
+
+<!-- ═══ 8 ═══════════════════════════════════════════════════════════ -->
+<section id="s8">
+  <div class="occhiello">Sezione 8</div>
+  <h2>Oggetti, armi e proiettili</h2>
+  <p class="sommario">Un solo campo <code>prezzo</code> che si porta dietro tutto il
+  negozio, e il Template Method meglio riuscito del progetto.</p>
+
+  <figure class="diag">
+    <svg viewBox="0 0 780 296" role="img" aria-label="Gerarchia di Item: armi, accessori e pickup">
+      <rect x="300" y="8" width="180" height="52" rx="9" class="sv-acc" stroke-width="1.5"/>
+      <text x="390" y="30" class="sv-tm" text-anchor="middle" font-weight="700">Item</text>
+      <text x="390" y="48" class="sv-p" text-anchor="middle">astratta · applicaEffetto(model)</text>
+
+      <path d="M390 60 L390 82 L130 82 L130 104" class="sv-linea"/>
+      <path d="M390 60 L390 104" class="sv-linea"/>
+      <path d="M390 60 L390 82 L650 82 L650 104" class="sv-linea"/>
+
+      <rect x="10" y="104" width="240" height="176" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="130" y="126" class="sv-tit" text-anchor="middle">ARMI</text>
+      <text x="130" y="150" class="sv-tm" text-anchor="middle">SpadaBase</text>
+      <text x="130" y="170" class="sv-tm" text-anchor="middle">SpadaPotenziata</text>
+      <text x="130" y="190" class="sv-tm" text-anchor="middle">Bacchetta</text>
+      <text x="130" y="210" class="sv-tm" text-anchor="middle">Boomerang</text>
+      <text x="130" y="242" class="sv-p" text-anchor="middle">occupano l'unico slot arma:</text>
+      <text x="130" y="258" class="sv-p" text-anchor="middle">prenderne una fa cadere</text>
+      <text x="130" y="272" class="sv-p" text-anchor="middle">quella di prima</text>
+
+      <rect x="270" y="104" width="240" height="176" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="390" y="126" class="sv-tit" text-anchor="middle">ACCESSORI</text>
+      <text x="390" y="150" class="sv-tm" text-anchor="middle">Arco</text>
+      <text x="390" y="170" class="sv-tm" text-anchor="middle">Candela</text>
+      <text x="390" y="190" class="sv-tm" text-anchor="middle">Armatura</text>
+      <text x="390" y="210" class="sv-tm" text-anchor="middle">Scarpette</text>
+      <text x="390" y="242" class="sv-p" text-anchor="middle">permanenti, non occupano</text>
+      <text x="390" y="258" class="sv-p" text-anchor="middle">lo slot e non sostituiscono</text>
+      <text x="390" y="272" class="sv-p" text-anchor="middle">niente</text>
+
+      <rect x="530" y="104" width="240" height="176" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="650" y="126" class="sv-tit" text-anchor="middle">PICKUP</text>
+      <text x="650" y="150" class="sv-tm" text-anchor="middle">Cuore</text>
+      <text x="650" y="170" class="sv-tm" text-anchor="middle">Rupia</text>
+      <text x="650" y="190" class="sv-tm" text-anchor="middle">Bomb</text>
+      <text x="650" y="210" class="sv-tm" text-anchor="middle">BombaPiazzata</text>
+      <text x="650" y="242" class="sv-p" text-anchor="middle">Cuore e Bomb ridefiniscono</text>
+      <text x="650" y="258" class="sv-p" text-anchor="middle">isRaccoglibile() per non</text>
+      <text x="650" y="272" class="sv-p" text-anchor="middle">sparire a inventario pieno</text>
+    </svg>
+  </figure>
+
+  <h3><code>Item</code></h3>
+  <p><code>Item</code> è la base di tutto quello che sta per terra e si può
+  raccogliere. Ha un campo <code>prezzo</code>: <strong>0 significa gratis, maggiore
+  di zero significa in vendita</strong>. Grazie a questo, la merce del negozio non ha
+  bisogno di una gerarchia a parte: è un <code>Item</code> normale con il prezzo
+  impostato quando si carica la stanza negozio.</p>
+
+  <p>Il metodo chiave è <code>applicaEffetto(GameModel model)</code>, ridefinito da
+  ogni sottoclasse: <code>Cuore</code> chiama <code>model.aggiungiVita()</code>,
+  <code>Rupia</code> chiama <code>aggiungiRupie</code> e <code>aggiungiPunti</code>,
+  <code>SpadaBase</code> chiama <code>equipaggiaArma(SPADA_BASE)</code>, e così via.
+  <strong>Il Model non fa un <code>if</code> per capire cosa ha raccolto: chiede
+  all'oggetto di applicarsi.</strong></p>
+
+  <p>C'è anche <code>isRaccoglibile(model)</code>, che di default risponde
+  <code>true</code>: <code>Cuore</code> lo ridefinisce per non farsi raccogliere
+  quando le vite sono già al massimo, e <code>Bomb</code> per non farsi raccogliere a
+  inventario pieno. Altrimenti sparirebbero senza dare niente.</p>
+
+  <h3>La raccolta, in ordine</h3>
+  <p>Tutta in <code>GameModel.controllaRaccoltaItems()</code>:</p>
+  <ol>
+    <li>Si scorre una <strong>copia</strong> della lista. Serve davvero:
+    <code>applicaEffetto()</code> può aggiungere un oggetto a <code>items</code>
+    (raccogliere un'arma fa cadere quella vecchia), e modificare una lista mentre la
+    si scorre con un for-each lancia <code>ConcurrentModificationException</code>.</li>
+    <li>Se l'oggetto ha il flag <code>richiedeUscita</code> — è appena stato lasciato
+    cadere e il giocatore ci è ancora sopra — si aspetta che si sposti, altrimenti lo
+    riprenderebbe nello stesso istante in cui lo ha buttato.</li>
+    <li>Se le hitbox non si toccano, si passa oltre.</li>
+    <li>Se <code>isRaccoglibile</code> dice di no, l'oggetto resta a terra.</li>
+    <li><strong>Se il prezzo è maggiore di zero</strong>, si controlla di avere
+    abbastanza rupie e le si scala. <strong>Questo è il negozio: non c'è nessun'altra
+    logica di acquisto.</strong></li>
+    <li><code>applicaEffetto(this)</code>, si marca raccolto, si notifica
+    <code>ITEM_RACCOLTO</code> e, se l'oggetto ha un'icona, parte l'animazione di Link
+    che lo alza sopra la testa.</li>
+  </ol>
+
+  <h3><code>Proiettile</code></h3>
+
+  <figure class="diag">
+    <svg viewBox="0 0 780 180" role="img" aria-label="Gerarchia di Proiettile: Freccia, Magia, BoomerangVolante">
+      <rect x="300" y="8" width="180" height="52" rx="9" class="sv-acc" stroke-width="1.5"/>
+      <text x="390" y="30" class="sv-tm" text-anchor="middle" font-weight="700">Proiettile</text>
+      <text x="390" y="48" class="sv-p" text-anchor="middle">astratta · flag daNemico</text>
+
+      <path d="M390 60 L390 84 L150 84 L150 106" class="sv-linea"/>
+      <path d="M390 60 L390 106" class="sv-linea"/>
+      <path d="M390 60 L390 84 L640 84 L640 106" class="sv-linea"/>
+
+      <rect x="60" y="106" width="180" height="60" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="150" y="128" class="sv-tm" text-anchor="middle" font-weight="700">Freccia</text>
+      <text x="150" y="148" class="sv-p" text-anchor="middle">si consuma al colpo</text>
+
+      <rect x="300" y="106" width="180" height="60" rx="9" class="sv-scatola" stroke-width="1.5"/>
+      <text x="390" y="128" class="sv-tm" text-anchor="middle" font-weight="700">Magia</text>
+      <text x="390" y="148" class="sv-p" text-anchor="middle">anche i colpi dell'Octorok</text>
+
+      <rect x="540" y="106" width="200" height="60" rx="9" class="sv-oro" stroke-width="1.5"/>
+      <text x="640" y="128" class="sv-tm" text-anchor="middle" font-weight="700">BoomerangVolante</text>
+      <text x="640" y="148" class="sv-p" text-anchor="middle">siConsumaAlColpo() = false</text>
+    </svg>
+  </figure>
+
+  <div class="riq">
+    <span class="et">Il Template Method più pulito del progetto</span>
+    <p>La superclasse scrive l'algoritmo, le sottoclassi riempiono i buchi.</p>
+  </div>
+
+  <div class="codice"><pre><code class="lang-java">// in Proiettile: l'algoritmo, uguale per tutti
+public void aggiorna(GameMap mappa, int px, int py) {
+    muovi();
+    if (collideConMuroOBordo(mappa)) {
+        termina();
+    }
+}
+
+// le sottoclassi dicono solo:
+protected abstract int getVelocita();
+protected abstract BufferedImage getSpriteCorrente();
+protected abstract Color getColoreFallback();
+public   abstract int getDanno();</code></pre></div>
+
+  <p>C'è anche un <strong>hook</strong>: <code>siConsumaAlColpo()</code> restituisce
+  <code>true</code> di default, e solo <code>BoomerangVolante</code> lo ridefinisce a
+  <code>false</code> — il boomerang attraversa i nemici e colpisce anche al ritorno.</p>
+
+  <p>Il risultato è che <code>GameModel.controllaDannoProiettili()</code> cicla su
+  <strong>una sola lista polimorfa</strong> e non sa né gli importa che tipo di
+  proiettile stia gestendo.</p>
+
+  <h3>Le bombe</h3>
+  <p><code>Bomb</code> è la bomba da raccogliere, che finisce in inventario.
+  <code>BombaPiazzata</code> è quella già a terra: aspetta qualche secondo, poi
+  esplode e fa danno in un quadrato attorno a sé. Il danno colpisce <strong>anche il
+  giocatore</strong>: si può morire con la propria bomba.</p>
+</section>
+
+<!-- ═══ 9 ═══════════════════════════════════════════════════════════ -->
+<section id="s9">
+  <div class="occhiello">Sezione 9</div>
+  <h2>Gli sprite</h2>
+  <p class="sommario">Due classi con responsabilità diverse: il coltello e la dispensa.</p>
+
+  <h3><code>SpriteSheet</code> — il coltello</h3>
+  <p>Carica un PNG con <code>ImageIO.read()</code> una volta sola e lo tiene in
+  memoria. Offre cinque modi di ritagliare, e la differenza fra loro è la parte da
+  saper spiegare:</p>
+
+  <div class="tab-scroll"><table>
+    <thead><tr><th>Metodo</th><th>Cosa fa</th></tr></thead>
+    <tbody>
+      <tr><td><code>ritaglia</code></td><td>ritaglia e toglie il colore di sfondo</td></tr>
+      <tr><td><code>ritagliaScalato</code></td><td>come sopra, poi ingrandisce con NEAREST_NEIGHBOR</td></tr>
+      <tr><td><code>ritagliaScalatoGrezzo</code></td><td>ingrandisce <strong>senza</strong> togliere lo sfondo</td></tr>
+      <tr><td><code>ritagliaScalatoCentrato</code></td><td>ricentra il disegno nella cella prima di scalare</td></tr>
+      <tr><td><code>ritagliaScalatoStretto</code></td><td>ritaglia sul disegno vero, che poi riempie il tile</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="riq">
+    <span class="et">Perché NEAREST_NEIGHBOR</span>
+    <p>Gli sprite sono pixel art da 16×16 ingranditi a 48×48. Un'interpolazione
+    bilineare li sfocherebbe; il vicino più prossimo mantiene i pixel netti.</p>
+  </div>
+
+  <div class="riq">
+    <span class="et">Perché esiste la versione "grezza"</span>
+    <p>La rimozione dello sfondo funziona <strong>per colore chiave</strong>, cioè
+    cancella tutti i pixel vicini a un certo colore. Va bene per gli sprite dei
+    personaggi, ma i tile del terreno sono pieni e certe loro tonalità sono quasi
+    uguali al verde e al grigio che verrebbero cancellati: il risultato erano tile
+    bucherellate.</p>
+  </div>
+
+  <p>Il ricentramento e il ritaglio stretto lavorano entrambi su
+  <code>trovaBoundingBox</code>, che scorre i pixel e trova il rettangolo di quelli
+  non trasparenti.</p>
+
+  <h3><code>SpriteManager</code> — la dispensa</h3>
+  <p>È un <strong>Singleton</strong>. Nel costruttore apre cinque fogli
+  (<code>link.png</code>, <code>enemys.png</code>, <code>world.png</code>,
+  <code>bomb.png</code>, <code>explosion.png</code>) e ritaglia <strong>tutto
+  subito</strong>: nessun caricamento pigro, nessuna cache che si svuota. Poi
+  distribuisce le immagini già pronte con una cinquantina di getter.</p>
+
+  <div class="riq oro">
+    <span class="et">Riuso del foglio con un offset</span>
+    <p>I frame di attacco delle tre armi da mischia sono identici a meno di una
+    traslazione orizzontale: spada di legno a offset 0, spada bianca a +93 px,
+    bacchetta a +279 px. C'è un solo metodo <code>caricaSetAttacco(int offsetX)</code>
+    chiamato tre volte, invece di tre metodi uguali.</p>
+  </div>
+
+  <div class="riq oro">
+    <span class="et">Le tre palette per piano</span>
+    <p><code>world.png</code> contiene gli stessi tile ripetuti in tre colorazioni,
+    distanti 102 px l'una dall'altra. Per ogni tipo di tile si costruisce un
+    <code>BufferedImage[3]</code>, e <code>gruppoPerPiano(piano)</code> mappa i piani
+    1-2 sulla prima palette, 3-4 sulla seconda, 5-8 sulla terza. Scendendo, il dungeon
+    cambia colore <strong>senza un solo pixel di grafica in più</strong>.</p>
+  </div>
+
+  <p>Lo specchiamento sinistra/destra è fatto via software disegnando l'immagine con
+  larghezza negativa, così nel foglio serve una sola direzione.</p>
+
+  <h3><code>AnimazioneSprite</code></h3>
+  <p>Tiene un array di frame e un contatore. Ogni <code>aggiorna()</code> incrementa
+  il contatore e, ogni <code>tickPerFrame</code> tick, passa al frame dopo con un
+  modulo. Il metodo statico
+  <code>caricaDirezionali(giù, su, sinistra, destra, tick)</code> è una piccola
+  <strong>factory</strong> che costruisce il gruppo delle quattro direzioni: viene
+  usata quattro volte dal <code>Player</code> (camminata più tre set di attacco), più
+  una volta ciascuno da <code>Goriya</code> e <code>Darknut</code>.</p>
+</section>
+
+<!-- ═══ 10 ══════════════════════════════════════════════════════════ -->
+<section id="s10">
+  <div class="occhiello">Sezione 10</div>
+  <h2>L'audio</h2>
+  <p class="sommario">Un Singleton su <code>javax.sound.sampled</code>, con una cache,
+  un thread di servizio e una conversione logaritmica del volume.</p>
+
+  <p><code>AudioManager</code> è un <strong>Singleton</strong> con
+  <code>getInstance()</code> sincronizzato, costruito su
+  <code>javax.sound.sampled</code> — non su <code>sun.audio</code>, che è un'API
+  interna deprecata e sulle JDK moderne non esiste più.</p>
+
+  <h4>1. La cache dei byte decodificati</h4>
+  <p>Un <code>ConcurrentHashMap&lt;String, DatiAudio&gt;</code> dove
+  <code>DatiAudio</code> è la coppia formato + array di byte PCM. Un <code>.wav</code>
+  viene letto e decodificato <strong>una volta sola</strong>; le volte successive si
+  parte già dai byte. Si usa <code>computeIfAbsent</code> e non <code>put</code>, così
+  se due thread decodificano lo stesso file insieme la seconda copia viene scartata
+  invece di sovrascrivere la prima.</p>
+
+  <h4>2. Gli effetti</h4>
+  <p>Ogni <code>play()</code> apre un <code>Clip</code> <strong>nuovo</strong> dai byte
+  in cache, con un <code>LineListener</code> che lo chiude da solo a fine
+  riproduzione. È il motivo per cui due colpi ravvicinati non si tagliano a vicenda:
+  se si riusasse lo stesso <code>Clip</code>, ogni nuovo suono interromperebbe il
+  precedente.</p>
+
+  <div class="riq oro">
+    <span class="et">Perché l'audio ha un thread suo</span>
+    <p>L'apertura di un <code>Clip</code> blocca per qualche millisecondo, e il tick
+    dura 16 ms: farla dentro il tick significherebbe far scattare il gioco ad ogni
+    esplosione. Perciò <code>play()</code> mette il lavoro su un piccolo esecutore a
+    thread singolo, demone, interno alla classe. <strong>È l'unico thread extra di
+    tutto il programma</strong>, ed è anche la risposta al "ma se il gioco fosse più
+    pesante?".</p>
+  </div>
+
+  <h4>3. La musica</h4>
+  <p><code>playMusic()</code> non fa niente se la traccia richiesta è già quella in
+  riproduzione — così si può richiamarla ad ogni cambio di schermata senza far
+  ripartire il tema da capo. Altrimenti ferma la vecchia e ne apre una nuova in
+  <code>loop(Clip.LOOP_CONTINUOUSLY)</code>.</p>
+
+  <h3>La conversione del volume</h3>
+  <p>Gli slider vanno da 0 a 100, ma <code>MASTER_GAIN</code> lavora in decibel su
+  scala logaritmica: <code>decibel = 20 * log10(percentuale)</code>. Lo zero non è
+  meno infinito ma un valore minimo (−80 dB) già impercettibile, e il risultato viene
+  comunque limitato fra il minimo e il massimo dichiarati dal controllo. Se il
+  <code>Clip</code> non supporta <code>MASTER_GAIN</code>, non si fa niente e si va
+  avanti.</p>
+
+  <div class="riq">
+    <span class="et">GameEvento tiene insieme le due parti</span>
+    <p>Ogni costante dell'enum porta solo un nome di file, e
+    <code>getPercorsoFile()</code> ci mette davanti <code>"resources/audio/"</code>.
+    Il Model fa <code>notifyObservers(GameEvento.NEMICO_UCCISO)</code> e non sa altro.
+    La musica invece è comandata direttamente da <code>MainWindow</code> ad ogni
+    cambio di schermata: non è un evento di gioco, è un fatto di navigazione.</p>
+  </div>
+</section>
+
+<!-- ═══ 11 ══════════════════════════════════════════════════════════ -->
+<section id="s11">
+  <div class="occhiello">Sezione 11</div>
+  <h2>Salvataggi, profili e classifica</h2>
+  <p class="sommario">Tre cose diverse, salvate in tre modi diversi <em>apposta</em>.</p>
+
+  <div class="tab-scroll"><table>
+    <thead><tr><th>Cosa</th><th>Classe</th><th>Formato</th><th>File</th></tr></thead>
+    <tbody>
+      <tr><td>Profili (3 slot)</td><td><code>ProfileManager</code></td><td>serializzazione binaria Java</td><td><code>resources/saves/slot1.dat</code>…</td></tr>
+      <tr><td>Classifica</td><td><code>Leaderboard</code></td><td>testo CSV, una riga per partita</td><td><code>resources/saves/classifica.txt</code></td></tr>
+      <tr><td>Impostazioni</td><td><code>GameSettings</code></td><td><code>java.util.Properties</code></td><td><code>resources/saves/impostazioni.properties</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <p><strong><code>UserProfile</code></strong> implementa <code>Serializable</code> con
+  <code>serialVersionUID = 1L</code> e contiene nickname, avatar, partite
+  giocate/vinte/perse e punteggio massimo. La serializzazione va bene qui perché
+  l'oggetto è chiuso, lo legge solo il gioco e non serve leggerlo a mano.</p>
+
+  <p><strong><code>Leaderboard</code></strong> è invece testo, e non è una svista: la
+  classifica si vuole poter aprire con un editor per controllarla, ed è un file
+  <em>append-only</em>, una riga aggiunta in fondo per ogni partita, senza riscrivere
+  niente. <code>Leaderboard</code> è tutta statica con il costruttore privato — è un
+  servizio senza stato, non ha senso istanziarla e non ha senso farne un Singleton.</p>
+
+  <div class="riq">
+    <span class="et">La vetrina della Stream API (punto 5 della consegna)</span>
+    <div class="codice"><pre><code class="lang-java">return caricaClassifica().stream()
+        .sorted(Comparator.comparingInt(RisultatoPartita::getPunteggio).reversed())
+        .limit(n)
+        .collect(Collectors.toList());</code></pre></div>
+    <p>Altri usi di <code>Stream&lt;T&gt;</code> nel progetto:
+    <code>ProfileManager.caricaTuttiIProfile()</code> con
+    <code>IntStream.range(0,3).mapToObj(...)</code>,
+    <code>GameModel.caricaNemici()</code> con <code>.map(this::creaNemicoDaSpawn)</code>,
+    e <code>DungeonMap.getTutteLeCoordinate()</code>. <strong>Quattro punti del
+    codebase, non uno isolato.</strong></p>
+  </div>
+
+  <p><strong><code>RisultatoPartita</code></strong> è un oggetto di valore immutabile:
+  tutti i campi <code>final</code>, solo getter, nessun setter.
+  <code>toRigaFile()</code> produce <code>nickname,punteggio,piano,data</code> e
+  <code>fromRiga(String)</code> fa l'inverso restituendo <code>null</code> su una riga
+  malformata, così una riga rovinata a mano non fa saltare tutta la classifica.</p>
+
+  <h3>Quando si scrive</h3>
+  <p>In un punto solo: <code>MainWindow.mostraGameOver()</code>. Lì si aggiornano le
+  statistiche del profilo (<code>registraPartita</code>), si risalva il profilo nel suo
+  slot e si aggiunge la riga in classifica — tutto <strong>prima</strong> di mostrare
+  il pannello, così il risultato resta anche se il giocatore chiude subito la
+  finestra.</p>
+
+  <div class="riq rosso">
+    <span class="et">Bug corretto: i salvataggi che fallivano in silenzio</span>
+    <p>Sia <code>ProfileManager.salvaProfile</code> che
+    <code>Leaderboard.salvaRisultato</code> chiamano ora
+    <code>getParentFile().mkdirs()</code> prima di scrivere, come già faceva
+    <code>GameSettings</code>. Senza, su una copia pulita del progetto (o sull'exe
+    pacchettizzato) dove <code>resources/saves/</code> non esiste ancora, il
+    salvataggio falliva con <code>FileNotFoundException</code>, finiva nel
+    <code>catch (IOException e)</code> — solo un <code>System.err.println</code> — e
+    il profilo o il punteggio non venivano mai scritti, in silenzio.</p>
+  </div>
+
+  <p><strong><code>GameSettings</code></strong> salva ad ogni singolo setter, non alla
+  chiusura: se il gioco viene ucciso brutalmente le impostazioni sono comunque già su
+  disco. I volumi vengono limitati fra 0 e 100 in ingresso.</p>
+
+  <div class="riq oro">
+    <span class="et">Da non confondere all'orale</span>
+    <p>Un profilo è un <em>nome con delle statistiche</em>, non un salvataggio della
+    partita. <strong>Non esiste il salva e riprendi a metà run</strong>: si comincia
+    sempre dal piano 1.</p>
+  </div>
+</section>
+
+<!-- ═══ 12 ══════════════════════════════════════════════════════════ -->
+<section id="s12">
+  <div class="occhiello">Sezione 12</div>
+  <h2>I design pattern, onestamente</h2>
+  <p class="sommario">Quelli che ci sono davvero, e quelli che <strong>non</strong> ci
+  sono — perché rivendicarne uno che non c'è è il modo più veloce per farsi smontare.</p>
+
+  <h3>Quelli che ci sono davvero</h3>
+
+  <div class="tab-scroll"><table>
+    <thead><tr><th>Pattern</th><th>Dove</th><th>Perché</th></tr></thead>
+    <tbody>
+      <tr><td><strong>MVC</strong></td><td><code>model/</code> <code>view/</code> <code>controller/</code></td><td>Richiesto esplicitamente. Il Model non importa Swing da nessuna parte.</td></tr>
+      <tr><td><strong>Observer</strong></td><td><code>GameModel extends Observable</code>, <code>GamePanel implements Observer</code></td><td>Richiesto esplicitamente. ~30 punti di notifica. Un solo observer registrato, ma il meccanismo è quello vero.</td></tr>
+      <tr><td><strong>Singleton</strong></td><td><code>SpriteManager</code>, <code>GameSettings</code>, <code>AudioManager</code>, <code>ProfileManager</code></td><td>Tutte con costruttore privato, init pigra e <code>getInstance()</code> sincronizzato.</td></tr>
+      <tr><td><strong>State</strong></td><td><code>StatoStanza</code> (enum con metodo astratto)</td><td>Chi lo usa non fa un <code>if</code> sullo stato: chiede allo stato di rispondere.</td></tr>
+      <tr><td><strong>Template Method</strong></td><td><code>Proiettile</code> e, più debolmente, <code>Entity</code></td><td>La superclasse scrive l'algoritmo, le sottoclassi riempiono i buchi.</td></tr>
+      <tr><td><strong>Factory Method</strong></td><td><code>GameMap.creaTile(char)</code>, <code>GameModel.creaNemicoDaSpawn(int[])</code>, <code>DungeonMap.generaCasuale(Random)</code></td><td>Traducono un codice nella sottoclasse concreta giusta.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p><strong>State</strong> è un esempio piccolo ma corretto:</p>
+  <div class="codice"><pre><code class="lang-java">public enum StatoStanza {
+    IN_COMBATTIMENTO { public boolean porteAperte() { return false; } },
+    RIPULITA         { public boolean porteAperte() { return true;  } };
+
+    public abstract boolean porteAperte();
+}</code></pre></div>
+
+  <h3>Quelli che NON ci sono — e perché conviene dirlo</h3>
+
+  <div class="riq rosso">
+    <span class="et">Strategy: no</span>
+    <p>C'è polimorfismo <em>a forma di</em> Strategy — <code>Item.applicaEffetto</code>
+    ha un'implementazione per oggetto, <code>Enemy.aggiorna</code> una per nemico — ma
+    <strong>nessuna strategia viene mai sostituita a runtime su uno stesso
+    oggetto</strong>. Non esiste un <code>setStrategy</code>, non c'è un'interfaccia
+    strategia tenuta in un campo. Il nome corretto è <strong>dispatch
+    polimorfico</strong>.</p>
+  </div>
+
+  <div class="riq rosso">
+    <span class="et">Command: no</span>
+    <p>La console dei trucchi sembra volerlo essere, ma è uno <code>switch</code> su
+    stringhe: niente interfaccia <code>Command</code>, niente <code>execute()</code>,
+    niente undo.</p>
+  </div>
+
+  <div class="riq rosso">
+    <span class="et">Decorator, Builder, Visitor, Adapter, Proxy, Flyweight, Memento: no</span>
+    <p>Dire "qui c'è polimorfismo, non Strategy, perché nessuno scambia la strategia a
+    runtime" fa una figura molto migliore che rivendicare un pattern assente.</p>
+  </div>
+</section>
+
+<!-- ═══ 13 ══════════════════════════════════════════════════════════ -->
+<section id="s13">
+  <div class="occhiello">Sezione 13</div>
+  <h2>Limiti noti</h2>
+  <p class="sommario">Cose migliorabili. Meglio arrivarci preparati che farsele dire.</p>
+
+  <div class="riq neutro">
+    <span class="et"><code>java.util.Observable</code> è deprecato da Java 9</span>
+    <p>Compila con un warning. È deprecato perché non è generico (l'argomento è
+    <code>Object</code>, e infatti serve un <code>instanceof</code> per leggerlo), non
+    è serializzabile in modo utile, e obbliga a ereditare da una classe invece di
+    implementare un'interfaccia — <strong>bruciando l'unica ereditarietà disponibile
+    in Java</strong>. Oggi userei <code>PropertyChangeSupport</code> oppure una mia
+    interfaccia listener, che sarebbe anche tipizzata.</p>
+  </div>
+
+  <div class="riq oro">
+    <span class="et">Ma non si può sostituire, ed è la traccia stessa a dirlo</span>
+    <p>Specifiche, punto 3: <em>«uso appropriato di MVC [1,2], <strong>Observer
+    Observable</strong> e di altri Design Pattern; l'adozione è richiesta come
+    <strong>SPECIFICA DI PROGETTO</strong>»</em>.</p>
+    <p>Riferimenti, voce [2]: <em>«Attenzione questa implementazione di MVC non
+    prevede l'adozione di Observer Observable, <strong>mentre è richiesto di adottare
+    anche Observer Observable per la gestione delle notifiche provenienti dal
+    Model</strong>»</em>.</p>
+    <p>Il caso d'uso preteso dalla traccia è esattamente
+    <code>GameModel extends Observable</code> →
+    <code>GamePanel implements Observer</code>. Sostituirlo significherebbe non
+    rispettare una specifica obbligatoria. All'orale la risposta giusta non è "avrei
+    dovuto cambiarlo", è <strong>"so che è deprecato, so cosa userei fuori da questo
+    vincolo, e so perché qui il vincolo c'è"</strong>.</p>
+  </div>
+
+  <div class="riq neutro">
+    <span class="et"><code>GameModel</code> è una God Class</span>
+    <p>Anche dopo la pulizia sta sulle 1200 righe e si occupa di troppe cose: tick di
+    gioco, generazione delle stanze, inventario, prezzi, collisioni, punteggio,
+    comandi di debug. Dividerei almeno la parte di gestione delle stanze e quella dei
+    comandi di debug.</p>
+  </div>
+
+  <div class="riq neutro">
+    <span class="et">Le risorse si caricano con percorsi relativi</span>
+    <p>Ovunque c'è <code>new File("resources/...")</code>, che è relativo alla
+    directory di lavoro del processo e non al jar. Il gioco funziona solo se lanciato
+    dalla cartella giusta. La soluzione "da manuale" è
+    <code>getClass().getResourceAsStream("/...")</code>, che legge dal classpath e
+    funziona anche dentro un jar.</p>
+    <p>Tre motivi per cui non l'ho cambiato, in ordine di forza:</p>
+    <ol>
+      <li><strong>È la convenzione della traccia.</strong> L'appendice di
+      <code>progetto.pdf</code>, quella che detta come si riproduce l'audio, usa
+      proprio <code>AudioManager.getInstance().play("resources/audio/hit.wav")</code>.
+      Il comportamento attuale è conforme all'esempio ufficiale.</li>
+      <li><strong>Metà delle risorse non potrebbe passarci comunque.</strong> Un
+      <code>InputStream</code> da classpath è in <strong>sola lettura</strong>, e
+      dentro un jar non è scrivibile affatto. Salvataggi, classifica e impostazioni
+      devono restare un <code>File</code> vero, perché ci si scrive. Il refactoring
+      vero non è "sostituire una chiamata": è <strong>separare le risorse in lettura
+      da quelle in scrittura</strong>, e spostare le seconde in una cartella utente
+      tipo <code>%APPDATA%</code>.</li>
+      <li>Tocca una trentina di punti in 13 file, e la pacchettizzazione è tarata sul
+      comportamento attuale: <code>jpackage --app-content</code> mette
+      <code>resources/</code> accanto all'<code>.exe</code> e il collegamento imposta
+      lì la working directory. Funziona proprio per quello.</li>
+    </ol>
+  </div>
+
+  <div class="riq neutro">
+    <span class="et">Non ci sono test</span>
+    <p>Il Model ha logica non banale e testabile senza interfaccia grafica — la BFS di
+    <code>assegnaStanzeSpeciali</code>, il consumo del pool degli oggetti, la macchina
+    a stati delle stanze — e sarebbe il primo posto dove metterei dei JUnit.</p>
+  </div>
+
+  <div class="riq neutro">
+    <span class="et">I nomi mescolano italiano e inglese</span>
+    <p><code>Bomb</code> accanto a <code>BombaPiazzata</code>, <code>Leaderboard</code>
+    accanto a <code>RisultatoPartita</code>, <code>MOVE_UP</code> accanto a
+    <code>PIAZZA_BOMBA</code> nello stesso enum. È una scelta consapevole non averlo
+    uniformato a ridosso della consegna: sarebbe stato un cambiamento in decine di
+    file, con rischio di rompere qualcosa, per un guadagno solo estetico.</p>
+  </div>
+
+  <div class="riq neutro">
+    <span class="et">Ci sono tre vocabolari di direzione diversi</span>
+    <p><code>Action</code> usa <code>UP/DOWN/LEFT/RIGHT</code>,
+    <code>GameModel.Direzione</code> usa <code>SU/GIU/SINISTRA/DESTRA</code>, e
+    <code>GameMap</code> ragiona per <code>Nord/Sud/Ovest/Est</code>. La traduzione
+    avviene a mano in <code>controllaUscitaMappa</code>. Il motivo storico è che
+    <code>GameMap</code> non deve dipendere da <code>GameModel</code>, ma con un solo
+    enum in <code>util</code> si risolverebbe meglio.</p>
+  </div>
+
+  <div class="riq">
+    <span class="et">✓ Gli errori non sono più ingoiati — corretto</span>
+    <p>Prima, quando mancava un file di livello o un salvataggio falliva, si stampava
+    su <code>System.err</code> e si andava avanti: l'utente non vedeva niente, e
+    sull'exe pacchettizzato quella console non la legge nessuno. Ora quegli stessi
+    punti passano da <code>util/Segnalatore.java</code> e il messaggio compare a
+    schermo, in rosso. <a href="#s15">Come funziona, nella sezione 15</a>.</p>
+  </div>
+</section>
+
+<!-- ═══ 14 ══════════════════════════════════════════════════════════ -->
+<section id="s14">
+  <div class="occhiello">Sezione 14</div>
+  <h2>Domande probabili all'orale</h2>
+  <p class="sommario">Quindici domande con la risposta già pronta. Clicca per aprire.</p>
+
+  <details class="dom"><summary>Perché il passo fisso con accumulatore e non semplicemente un tick per sveglia?</summary>
+    <div class="risp"><p>Perché il timer non è preciso: su Windows le attese si
+    allineano al tick di sistema da ~15,6 ms, quindi una richiesta di 16 ms diventa
+    un'attesa di 31 e il gioco andrebbe a metà velocità. Contando i millisecondi
+    realmente trascorsi si eseguono sempre 60 passi al secondo, qualunque cosa faccia
+    il timer. È lo schema classico del <em>fixed timestep</em>: la logica avanza a
+    passi uguali, il disegno si adatta.</p></div></details>
+
+  <details class="dom"><summary>Perché un <code>javax.swing.Timer</code> e non un thread per il game loop?</summary>
+    <div class="risp"><p>Perché con un thread separato il Model veniva modificato da
+    due thread: il loop faceva <code>removeIf</code> sulle liste mentre l'EDT le
+    copiava per disegnare, con rischio concreto di
+    <code>ConcurrentModificationException</code>. Il Timer esegue sull'EDT, quindi un
+    solo thread tocca lo stato e il problema sparisce senza lock. Il prezzo è che un
+    tick lento blocca l'interfaccia: per questo l'apertura dei <code>Clip</code> audio
+    è stata spostata su un thread di servizio.</p></div></details>
+
+  <details class="dom"><summary>E se il gioco fosse più pesante?</summary>
+    <div class="risp"><p>Allora il Timer non basterebbe più e servirebbe tornare a un
+    thread separato, ma questa volta fatto bene: il thread calcola lo stato, e alla
+    fine del tick pubblica sull'EDT uno <strong>snapshot immutabile</strong> con
+    <code>SwingUtilities.invokeLater</code>. La View disegnerebbe solo lo snapshot,
+    senza toccare le liste vive.</p></div></details>
+
+  <details class="dom"><summary>Perché <code>Observable</code> se è deprecato?</summary>
+    <div class="risp"><p>Perché il pattern Observer era richiesto e questa è la sua
+    implementazione standard nella libreria Java. So che è deprecato da Java 9 e
+    perché: non è generico, e occupa l'unica ereditarietà disponibile. L'alternativa
+    moderna è <code>PropertyChangeSupport</code> o un'interfaccia listener scritta a
+    mano.</p></div></details>
+
+  <details class="dom"><summary>Perché <code>EnumSet</code> per i tasti premuti?</summary>
+    <div class="risp"><p>Perché le chiavi sono i valori di un enum, e
+    <code>EnumSet</code> internamente è una maschera di bit: occupa pochissimo e
+    <code>contains</code> è un'operazione su bit. Ed è un <code>Set</code> perché più
+    tasti possono essere premuti insieme e ognuno o c'è o non c'è.</p></div></details>
+
+  <details class="dom"><summary>Perché tieni i tasti premuti invece di reagire agli eventi?</summary>
+    <div class="risp"><p>Perché con gli eventi la velocità di movimento dipenderebbe
+    dalla ripetizione automatica della tastiera del sistema operativo. Campionando lo
+    stato una volta per tick, il movimento è di 4 px per tick su qualsiasi
+    macchina.</p></div></details>
+
+  <details class="dom"><summary>Cosa succede se due nemici muoiono nello stesso frame?</summary>
+    <div class="risp"><p>Niente di strano: il ciclo <code>for</code> li aggiorna
+    entrambi, ognuno chiama <code>notificaMorteNemico()</code> che aggiunge punti e
+    notifica un <code>GameEvento</code>, e alla fine
+    <code>nemici.removeIf(n -&gt; !n.isVivo())</code> li toglie tutti e due in una
+    volta. La rimozione avviene <strong>dopo</strong> il ciclo apposta: rimuovere
+    dentro un for-each lancerebbe
+    <code>ConcurrentModificationException</code>.</p></div></details>
+
+  <details class="dom"><summary>Perché i profili sono serializzati e la classifica no?</summary>
+    <div class="risp"><p>Sono esigenze diverse. Il profilo è un oggetto chiuso che
+    legge solo il gioco: la serializzazione è la via più corta. La classifica invece
+    cresce di una riga per partita, si vuole poter aprire con un editor e non ha senso
+    riscriverla tutta ogni volta: il testo in append è più adatto. Se un giorno
+    servisse cambiare i campi del profilo, però, la serializzazione binaria
+    diventerebbe un problema di compatibilità — ed è il suo difetto
+    principale.</p></div></details>
+
+  <details class="dom"><summary>Il piano è sempre attraversabile? Non può generare stanze irraggiungibili?</summary>
+    <div class="risp"><p>No, ed è garantito per costruzione: il random walk aggiunge
+    una stanza solo partendo da una cella <strong>già occupata</strong>, quindi ogni
+    stanza nuova nasce attaccata a una raggiungibile. Non serve un controllo di
+    connessione a posteriori. <a href="#sim">Lo si vede nel simulatore</a>.</p></div></details>
+
+  <details class="dom"><summary>Perché la stanza con le scale è sempre lontana?</summary>
+    <div class="risp"><p>Perché non è scelta a caso su tutte le stanze: si fa una BFS
+    dall'ingresso e si sceglie fra quelle a <strong>distanza massima</strong>. Senza,
+    capiterebbe di trovare l'uscita nella stanza accanto e il piano durerebbe dieci
+    secondi.</p></div></details>
+
+  <details class="dom"><summary>Perché i template delle stanze sono 15×9?</summary>
+    <div class="risp"><p>Perché sono numeri dispari, quindi esiste una colonna e una
+    riga centrale esatte dove mettere le porte. Con un numero pari la porta sarebbe
+    storta.</p></div></details>
+
+  <details class="dom"><summary>A cosa serve <code>itemsStanze</code> se hai già <code>statoStanze</code>?</summary>
+    <div class="risp"><p>Fanno due cose diverse. <code>statoStanze</code> ricorda se
+    una stanza è stata ripulita, e serve a non far riapparire i nemici.
+    <code>itemsStanze</code> ricorda quali oggetti sono rimasti per terra: senza,
+    rientrando in una stanza gli oggetti già raccolti ricomparirebbero e un'arma
+    lasciata cadere sparirebbe.</p></div></details>
+
+  <details class="dom"><summary>Il negozio come funziona, tecnicamente?</summary>
+    <div class="risp"><p>Non c'è nessuna classe negozio con un'interfaccia a parte. La
+    stanza negozio è un template normale con qualche <code>C</code> e una
+    <code>X</code>; quando si carica, se il tipo della stanza è <code>NEGOZIO</code>,
+    agli item viene assegnato un prezzo preso da <code>Shop</code>. Da lì in poi sono
+    <code>Item</code> come tutti gli altri: l'unica differenza è in
+    <code>controllaRaccoltaItems</code>, dove se il prezzo è maggiore di zero si
+    controlla di avere abbastanza rupie e le si scala prima di applicare l'effetto.
+    <strong>Comprare è letteralmente "raccogliere pagando".</strong></p></div></details>
+
+  <details class="dom"><summary>Perché il Goriya non insegue il giocatore?</summary>
+    <div class="risp"><p>Perché serviva varietà: se tutti e tre i nemici inseguissero,
+    le stanze sarebbero tutte uguali. Il Goriya si muove a caso ed è veloce, il
+    Darknut insegue ed è lento e resistente, l'Octorok sta fermo e spara. Messi
+    insieme in una stanza costringono a comportamenti diversi.</p></div></details>
+
+  <details class="dom"><summary>Perché <code>Leaderboard</code> è tutta statica e non un Singleton come gli altri?</summary>
+    <div class="risp"><p>Perché non ha stato. Un Singleton serve quando c'è un'istanza
+    con dei campi da condividere — <code>SpriteManager</code> ha la cache,
+    <code>AudioManager</code> ha i clip. La classifica invece è solo due funzioni che
+    leggono e scrivono un file: farne un oggetto sarebbe cerimonia inutile.</p></div></details>
+
+  <details class="dom"><summary><code>getNemici()</code> restituisce una copia. Perché?</summary>
+    <div class="risp"><p>Per due motivi. Il primo è l'incapsulamento: chi la riceve non
+    può modificare la lista vera del Model. Il secondo, storico, era la sicurezza
+    rispetto ai thread — ma quella non funzionava davvero, perché il pericolo era
+    proprio nell'atto di copiare mentre un altro thread modificava. Adesso che tutto
+    gira sull'EDT il problema non si pone, e la copia resta solo per il primo
+    motivo.</p></div></details>
+</section>
+
+<!-- ═══ 15 ══════════════════════════════════════════════════════════ -->
+<section id="s15">
+  <div class="occhiello">Sezione 15</div>
+  <h2>Bug corretti dopo la prima review</h2>
+  <p class="sommario">Utili per il punto <em>g</em> della relazione, "altre note
+  progettuali e di sviluppo": non è un elenco di errori, è la prova che il codice è
+  stato riletto.</p>
+
+  <div class="riq rosso">
+    <span class="et">1 · Nemico morto che spara comunque</span>
+    <p>In <code>GameModel.aggiorna()</code>, un <code>Octorok</code> ucciso da un tick
+    di ustione nello stesso frame poteva ancora sparare: <code>tentaSparo()</code>
+    veniva chiamato incondizionatamente dopo <code>aggiorna()</code>, senza controllare
+    se il nemico fosse ancora vivo. Ora, se il nemico è appena morto, il frame salta il
+    suo turno di sparo.</p>
+  </div>
+
+  <div class="riq rosso">
+    <span class="et">2 · Ustione che scudava dai colpi veri</span>
+    <p>Il danno da ustione ora passa da <code>subisciDannoPassivo</code>, non da
+    <code>subiDanno</code>, per non avviare l'invincibilità da colpo ad ogni tick di
+    fuoco. <a href="#s7">Dettaglio nella sezione 7</a>.</p>
+  </div>
+
+  <div class="riq rosso">
+    <span class="et">3 · Salvataggi silenziosamente falliti</span>
+    <p><code>mkdirs()</code> aggiunta prima di scrivere profilo e classifica.
+    <a href="#s11">Dettaglio nella sezione 11</a>.</p>
+  </div>
+
+  <div class="riq rosso">
+    <span class="et">4 · Cooldown Boomerang sprecato</span>
+    <p>Tentare un attacco col Boomerang mentre uno era già in volo consumava comunque
+    il cooldown e avviava l'animazione di swing, anche se poi nessun nuovo Boomerang
+    veniva lanciato. Ora il controllo "già in volo" avviene <strong>prima</strong> di
+    chiamare <code>tentaAttacco()</code>, non dopo.</p>
+  </div>
+
+  <div class="riq rosso">
+    <span class="et">5 · Crash raro in generazione dungeon</span>
+    <p><code>DungeonMap.assegnaStanzeSpeciali()</code> poteva chiamare
+    <code>Random.nextInt(0)</code> — che lancia <code>IllegalArgumentException</code> —
+    se il random-walk lasciava meno di 2 celle libere per negozio e tesoro. Ora quei
+    due controlli sono guardati: quella volta il piano risulta più povero invece di far
+    crashare la generazione.</p>
+  </div>
+
+  <div class="riq rosso">
+    <span class="et">6 · Il game loop sul thread sbagliato</span>
+    <p>Girava su un <code>Thread</code> separato dall'EDT e modificava le liste dei
+    nemici e degli item mentre <code>GamePanel.paintComponent()</code>, sull'EDT, le
+    iterava per disegnare. Le copie difensive di <code>getNemici()</code> e
+    <code>getItems()</code> non bastavano, perché il pericolo stava proprio nell'atto
+    di copiare. Risolto passando il loop a un <code>javax.swing.Timer</code>, che
+    esegue sull'EDT: <strong>un thread solo tocca lo stato</strong>.
+    <a href="#s4">Dettaglio nella sezione 4</a>.</p>
+  </div>
+
+  <h3>7 · Errori invisibili all'utente</h3>
+  <p>Non era un bug, era un limite: un salvataggio fallito, un livello mancante o un
+  audio non trovato finivano solo su <code>System.err</code> — e sull'exe
+  pacchettizzato quella console non la legge nessuno. Il gioco proseguiva in
+  silenzio come se niente fosse.</p>
+
+  <p>Ora quei punti chiamano <code>util/Segnalatore.java</code>. La parte
+  interessante è <strong>come</strong>, perché il vincolo era non far importare la
+  View al Model:</p>
+
+  <div class="codice"><pre><code class="lang-java">// in util/Segnalatore.java — il Model vede solo un Consumer, non la View
+private static Consumer&lt;String&gt; destinazione;
+private static final List&lt;String&gt; pendenti = new ArrayList&lt;&gt;();
+
+public static synchronized void segnala(String messaggio) {
+    System.err.println(messaggio);          // come prima, non si perde niente
+    if (destinazione != null) {
+        destinazione.accept(messaggio);
+    } else if (pendenti.size() &lt; MAX_PENDENTI) {
+        pendenti.add(messaggio);            // la View non c'è ancora
+    }
+}
+
+// in GameController, accanto a model.addObserver(view):
+Segnalatore.collega(view::mostraMessaggioNotifica);</code></pre></div>
+
+  <p>Tre dettagli da saper difendere:</p>
+  <ul>
+    <li><strong>Perché in <code>util</code> e non in <code>view</code>.</strong>
+    Perché lo chiamano <code>GameMap</code>, <code>Leaderboard</code>,
+    <code>ProfileManager</code> — roba di <code>model</code>, che non può importare
+    la View. Il <code>Consumer&lt;String&gt;</code> è lo stesso trucco dell'Observer:
+    il Model dice cos'è successo, non chi deve mostrarlo.</li>
+    <li><strong>La coda dei pendenti.</strong> Gli sprite si caricano all'avvio,
+    <em>prima</em> che il <code>GamePanel</code> esista. Senza coda quei messaggi si
+    perderebbero; con la coda vengono mostrati appena la partita parte. Il tetto di
+    10 evita che un errore ripetuto riempia la memoria.</li>
+    <li><strong>Il canale esisteva già.</strong>
+    <code>GamePanel.mostraMessaggioNotifica()</code> c'era già per la console dei
+    trucchi, e colora da sola il messaggio di rosso se contiene "errore". Non è stato
+    scritto niente di nuovo lato View — è riuso.</li>
+  </ul>
+
+  <p>L'audio ha una guardia in più: un effetto sonoro che manca fallisce ad
+  <em>ogni</em> colpo, quindi <code>AudioManager</code> tiene un
+  <code>Set&lt;String&gt;</code> dei file già segnalati e manda la notifica una volta
+  sola.</p>
+</section>
+
+<!-- ═══ 16 ══════════════════════════════════════════════════════════ -->
+<section id="s16">
+  <div class="occhiello">Sezione 16</div>
+  <h2>Stato della consegna</h2>
+  <p class="sommario">Cosa è pronto e cosa manca. I quattro punti e le sette
+  specifiche sono presi alla lettera da <code>progetto.pdf</code>.</p>
+
+  <h3>I quattro punti della consegna</h3>
+
+  <ul class="check">
+    <li class="fatto"><span class="box"></span><span>
+      <b>2 · Il progetto Eclipse del gioco</b>
+      <small>«con tutte le cartelle relative a codice sorgente e risorse (la classe
+      <code>JZelda</code> deve contenere il <code>main</code> del gioco)»,
+      <strong>esclusivamente in ZIP</strong>, non RAR. Il <code>main</code> è in
+      <code>jzelda/JZelda.java</code>. Compila con <code>javac --release 21</code>:
+      0 errori, solo i 3 warning di <code>deprecation</code> attesi su
+      <code>Observable</code>.</small>
+    </span></li>
+    <li><span class="box"></span><span>
+      <b>1 · Diagramma delle classi</b>
+      <small><strong>Esclusivamente in PDF</strong>, e la traccia chiede di usare uno
+      strumento di disegno (draw.io, Google Draw, PowerPoint…). Ancora da produrre —
+      i diagrammi delle <a href="#s2">sezioni 2</a>, <a href="#s7">7</a> e
+      <a href="#s8">8</a> sono una traccia di partenza, ma non sostituiscono un
+      diagramma UML completo.</small>
+    </span></li>
+    <li><span class="box"></span><span>
+      <b>3 · Documentazione Javadoc</b>
+      <small>«nella forma di una cartella contenuta nel progetto Eclipse del punto
+      2». Il codice ha già i commenti <code>/** ... */</code>: manca solo lanciare
+      <code>javadoc</code> e includere l'output nel progetto.</small>
+    </span></li>
+    <li><span class="box"></span><span>
+      <b>4 · Relazione individuale in PDF</b>
+      <small>Sette punti richiesti: <b>a)</b> matricola · <b>b)</b> corso (presenza MZ
+      o Teledidattica) · <b>c)</b> nome, cognome e composizione del gruppo ·
+      <b>d)</b> le decisioni di progettazione <em>per ognuna</em> delle specifiche ·
+      <b>e)</b> i design pattern adottati, dove e perché (<a href="#s12">sezione
+      12</a>) · <b>f)</b> l'uso di <code>Stream&lt;T&gt;</code> (<a href="#s11">sezione
+      11</a>) · <b>g)</b> altre note progettuali e di sviluppo (<a href="#s15">sezione
+      15</a>). La traccia insiste in maiuscolo: <strong>non c'è un limite superiore di
+      pagine</strong>, «una relazione serve a valorizzare il vostro lavoro».</small>
+    </span></li>
+  </ul>
+
+  <h3>Conformità alle sette specifiche</h3>
+  <p>Sono quelle per un team da una persona. Voto massimo ottenibile per JZelda: 30.</p>
+
+  <div class="tab-scroll"><table>
+    <thead><tr><th>#</th><th>Specifica</th><th>Dove</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Profilo utente: nickname, avatar, partite giocate/vinte/perse</td>
+        <td><code>UserProfile</code>, <code>ProfileManager</code>, 3 slot — <a href="#s11">§11</a></td></tr>
+      <tr><td>2</td><td>Partita completa: ≥8 livelli, ≥2 tipi di nemici con grafica e comportamento diversi, punteggio, vite, rupie, 3 item, 1 shop, game over, <strong>continua</strong>, classifica</td>
+        <td>8 piani · <strong>3</strong> nemici · <strong>15+</strong> item · negozio come tipo di stanza · «continua» = il bottone <em>Riprova</em> in <code>GameOverPanel.java:44</code></td></tr>
+      <tr><td>3</td><td>MVC, Observer Observable e altri design pattern</td>
+        <td><a href="#s2">§2</a> e <a href="#s12">§12</a>: MVC, Observer, Singleton ×4, State, Template Method, Factory Method</td></tr>
+      <tr><td>4</td><td>Java Swing o JavaFX per la GUI</td>
+        <td>Swing: <code>JFrame</code> + <code>CardLayout</code>, 9 pannelli — <a href="#s3">§3</a></td></tr>
+      <tr><td>5</td><td>Utilizzo appropriato di <code>Stream&lt;T&gt;</code></td>
+        <td>4 punti: <code>Leaderboard.caricaTopN</code>, <code>ProfileManager.caricaTuttiIProfile</code>, <code>GameModel.caricaNemici</code>, <code>DungeonMap.getTutteLeCoordinate</code></td></tr>
+      <tr><td>6</td><td>Riproduzione di audio sample</td>
+        <td><code>AudioManager</code> su <code>javax.sound.sampled</code>, non su <code>sun.audio</code> dell'appendice — <a href="#s10">§10</a></td></tr>
+      <tr><td>7</td><td>Animazioni ed effetti speciali</td>
+        <td><code>AnimazioneSprite</code> a 4 direzioni, lampeggio da invincibilità, ustione, esplosioni, 3 palette per piano — <a href="#s9">§9</a></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="riq oro">
+    <span class="et">Da saper distinguere all'orale</span>
+    <p>La specifica 2 dice «game over, <strong>continua</strong>»: nel gioco è il
+    bottone <em>Riprova</em>, che ricomincia una partita nuova dal piano 1. Non è un
+    salva-e-riprendi a metà run, che JZelda non ha — un profilo è un
+    <em>nome con delle statistiche</em>, non un salvataggio della partita.</p>
+  </div>
+
+  <div class="riq">
+    <span class="et">✓ Igiene del repository — fatta</span>
+    <ul>
+      <li><code>resources/saves/classifica.txt</code> svuotato: via le 43 partite di
+      test, incluse le 12 righe con "piano 9" su 8, residuo del bug della
+      <a href="#s6">sezione 6</a>.</li>
+      <li><code>slot1.dat</code> rimosso: i tre slot appaiono vuoti a chi apre il
+      progetto.</li>
+      <li><code>impostazioni.properties</code> riportato a
+      <code>mostraHitbox=false</code> e <code>mostraFPS=false</code>: niente più
+      hitbox disegnate a schermo al primo avvio.</li>
+      <li><code>packaging/sources.txt</code> rigenerato: non elenca più il
+      <code>ShopPanel.java</code> che non esiste, e adesso
+      <code>javac @packaging/sources.txt</code> funziona anche a mano.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+</div>
+
+<button class="btn" id="su" aria-label="Torna in cima">↑</button>
+
+<script>
+(function () {
+"use strict";
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var esc = function (s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+  });
+};
+var norm = function (s) {
+  return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
+/* ══ Tema ═══════════════════════════════════════════════════════════ */
+var btnTema = $("#tema");
+function applicaTema(t) {
+  if (t) document.documentElement.setAttribute("data-tema", t);
+  else document.documentElement.removeAttribute("data-tema");
+  var scuro = t === "scuro" ||
+    (!t && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  btnTema.textContent = scuro ? "☀" : "🌙";
+  btnTema.setAttribute("aria-label", scuro ? "Passa al tema chiaro" : "Passa al tema scuro");
+}
+var temaSalvato = null;
+try { temaSalvato = localStorage.getItem("jzelda-tema"); } catch (e) {}
+applicaTema(temaSalvato);
+btnTema.addEventListener("click", function () {
+  var attuale = document.documentElement.getAttribute("data-tema");
+  var scuroOra = attuale === "scuro" ||
+    (!attuale && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  var nuovo = scuroOra ? "chiaro" : "scuro";
+  applicaTema(nuovo);
+  try { localStorage.setItem("jzelda-tema", nuovo); } catch (e) {}
+});
+
+/* ══ Indice ═════════════════════════════════════════════════════════ */
+var sezioni = $$("main section[id]");
+var gruppi = { s1: "Fondamenta", s4: "Il motore", s7: "Il gioco", s12: "Per l'esame" };
+var nav = $("#indice");
+var html = '<ol><li><a href="#cima">Copertina</a></li>';
+sezioni.forEach(function (sec, i) {
+  if (gruppi[sec.id]) html += '<li class="gruppo">' + gruppi[sec.id] + "</li>";
+  var titolo = $("h2", sec).textContent;
+  html += '<li><a href="#' + sec.id + '"><span class="num">' + (i + 1) + "</span>" +
+          esc(titolo) + "</a></li>";
+});
+nav.innerHTML = html + "</ol>";
+var voci = $$("a[href^='#s']", nav);
+
+/* ══ Scrollspy + avanzamento ════════════════════════════════════════ */
+var barra = $("#avanzamento"), btnSu = $("#su"), inAttesa = false;
+function aggiornaScroll() {
+  inAttesa = false;
+  var y = window.scrollY || document.documentElement.scrollTop;
+  var h = document.documentElement.scrollHeight - window.innerHeight;
+  barra.style.width = (h > 0 ? Math.min(100, (y / h) * 100) : 0) + "%";
+  btnSu.classList.toggle("visto", y > 600);
+
+  var attiva = null;
+  for (var i = 0; i < sezioni.length; i++) {
+    if (sezioni[i].getBoundingClientRect().top <= 140) attiva = sezioni[i].id;
+  }
+  voci.forEach(function (a) {
+    var on = a.getAttribute("href") === "#" + attiva;
+    a.classList.toggle("attivo", on);
+    if (on && nav.scrollHeight > nav.clientHeight) {
+      var t = a.offsetTop, n = nav.scrollTop;
+      if (t < n + 40 || t > n + nav.clientHeight - 60) nav.scrollTop = t - nav.clientHeight / 2;
+    }
+  });
+}
+window.addEventListener("scroll", function () {
+  if (!inAttesa) { inAttesa = true; requestAnimationFrame(aggiornaScroll); }
+}, { passive: true });
+window.addEventListener("resize", aggiornaScroll, { passive: true });
+btnSu.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+/* ══ Menu mobile ════════════════════════════════════════════════════ */
+var velo = $("#velo"), apri = $("#apri-menu");
+function menu(stato) {
+  nav.classList.toggle("aperta", stato);
+  velo.classList.toggle("visto", stato);
+  apri.setAttribute("aria-expanded", String(stato));
+}
+apri.addEventListener("click", function () { menu(!nav.classList.contains("aperta")); });
+velo.addEventListener("click", function () { menu(false); });
+nav.addEventListener("click", function (e) { if (e.target.tagName === "A") menu(false); });
+
+/* ══ Evidenziazione Java ════════════════════════════════════════════ */
+var PAROLE = /^(abstract|boolean|break|case|catch|char|class|continue|default|do|double|else|enum|extends|final|finally|float|for|if|implements|import|instanceof|int|interface|long|new|package|private|protected|public|return|static|super|switch|synchronized|this|throw|throws|try|void|while|true|false|null|var)$/;
+var TOKEN = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|\b(\d[\d_]*[LlFfDd]?)\b|([A-Za-z_$][\w$]*)/g;
+$$("code.lang-java").forEach(function (blocco) {
+  var src = blocco.textContent, out = "", ultimo = 0, m;
+  TOKEN.lastIndex = 0;
+  while ((m = TOKEN.exec(src)) !== null) {
+    out += esc(src.slice(ultimo, m.index));
+    ultimo = m.index + m[0].length;
+    if (m[1]) out += '<span class="c">' + esc(m[1]) + "</span>";
+    else if (m[2]) out += '<span class="s">' + esc(m[2]) + "</span>";
+    else if (m[3]) out += '<span class="n">' + esc(m[3]) + "</span>";
+    else if (PAROLE.test(m[4])) out += '<span class="k">' + m[4] + "</span>";
+    else if (/^[A-Z]/.test(m[4])) out += '<span class="t">' + m[4] + "</span>";
+    else out += esc(m[4]);
+  }
+  blocco.innerHTML = out + esc(src.slice(ultimo));
+});
+
+/* ══ Copia il codice ════════════════════════════════════════════════ */
+$$(".codice").forEach(function (box) {
+  var b = document.createElement("button");
+  b.className = "btn copia"; b.type = "button"; b.textContent = "copia";
+  b.addEventListener("click", function () {
+    var testo = $("code", box) ? $("code", box).textContent : $("pre", box).textContent;
+    var fine = function () { b.textContent = "copiato ✓"; setTimeout(function () { b.textContent = "copia"; }, 1400); };
+    if (navigator.clipboard) navigator.clipboard.writeText(testo).then(fine, function () {});
+    else {
+      var t = document.createElement("textarea");
+      t.value = testo; document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); fine(); } catch (e) {}
+      document.body.removeChild(t);
+    }
+  });
+  box.appendChild(b);
+});
+
+/* ══ Flusso del tick ════════════════════════════════════════════════ */
+$$("#flusso-tick li").forEach(function (li) {
+  $("button", li).addEventListener("click", function () { li.classList.toggle("aperto"); });
+});
+
+/* ══ Diagrammi cliccabili ═══════════════════════════════════════════ */
+function vaiA(sel) {
+  var bersaglio = document.querySelector(sel);
+  if (!bersaglio) return;
+  bersaglio.scrollIntoView({ behavior: "smooth", block: "start" });
+  bersaglio.classList.remove("evidenzia-flash");
+  void bersaglio.offsetWidth;
+  bersaglio.classList.add("evidenzia-flash");
+  history.replaceState(null, "", sel);
+}
+$$(".diag [data-vai]").forEach(function (g) {
+  g.setAttribute("tabindex", "0");
+  g.setAttribute("role", "link");
+  var salta = function () { vaiA(g.getAttribute("data-vai")); };
+  g.addEventListener("click", salta);
+  g.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); salta(); }
+  });
+});
+
+/* ══ Ricerca ════════════════════════════════════════════════════════ */
+var indice = [];
+sezioni.forEach(function (sec) {
+  var titolo = $("h2", sec).textContent;
+  $$("p, li, td, h3, h4, summary, .dett", sec).forEach(function (el) {
+    if (el.closest(".sim") || el.classList.contains("sommario")) return;
+    var t = el.textContent.replace(/\s+/g, " ").trim();
+    if (t.length < 12) return;
+    indice.push({ sec: sec.id, titolo: titolo, el: el, testo: t, n: norm(t) });
+  });
+});
+
+var campo = $("#cerca"), pannello = $("#esiti"), scelto = -1, attesa;
+function chiudiEsiti() { pannello.classList.remove("aperto"); pannello.innerHTML = ""; scelto = -1; }
+function cerca(q) {
+  var qn = norm(q.trim());
+  if (qn.length < 2) return chiudiEsiti();
+  var trovati = [];
+  for (var i = 0; i < indice.length && trovati.length < 14; i++) {
+    var p = indice[i].n.indexOf(qn);
+    if (p !== -1) trovati.push({ v: indice[i], p: p });
+  }
+  if (!trovati.length) {
+    pannello.innerHTML = '<div class="vuoto">Nessun risultato per “' + esc(q) + "”.</div>";
+    pannello.classList.add("aperto");
+    return;
+  }
+  pannello.innerHTML = trovati.map(function (t, i) {
+    var da = Math.max(0, t.p - 55), a = Math.min(t.v.testo.length, t.p + qn.length + 75);
+    var pre = (da > 0 ? "…" : "") + t.v.testo.slice(da, t.p);
+    var mid = t.v.testo.slice(t.p, t.p + qn.length);
+    var post = t.v.testo.slice(t.p + qn.length, a) + (a < t.v.testo.length ? "…" : "");
+    return '<button type="button" data-i="' + i + '"><span class="dove">' +
+      esc(t.v.titolo) + '</span><span class="frase">' + esc(pre) + "<mark>" +
+      esc(mid) + "</mark>" + esc(post) + "</span></button>";
+  }).join("");
+  pannello.classList.add("aperto");
+  scelto = -1;
+  $$("button", pannello).forEach(function (b, i) {
+    b.addEventListener("click", function () { apriEsito(trovati[i].v); });
+  });
+}
+function apriEsito(v) {
+  chiudiEsiti();
+  campo.blur();
+  menu(false);
+  var det = v.el.closest("details");
+  if (det) det.open = true;
+  var li = v.el.closest("#flusso-tick li");
+  if (li) li.classList.add("aperto");
+  var bersaglio = v.el.tagName === "SUMMARY" ? v.el.parentElement : v.el;
+  bersaglio.scrollIntoView({ behavior: "smooth", block: "center" });
+  bersaglio.classList.remove("evidenzia-flash");
+  void bersaglio.offsetWidth;
+  bersaglio.classList.add("evidenzia-flash");
+}
+campo.addEventListener("input", function () {
+  clearTimeout(attesa);
+  var v = campo.value;
+  attesa = setTimeout(function () { cerca(v); }, 110);
+});
+campo.addEventListener("keydown", function (e) {
+  var bottoni = $$("button", pannello);
+  if (e.key === "Escape") { chiudiEsiti(); campo.blur(); return; }
+  if (!bottoni.length) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    scelto = (scelto + (e.key === "ArrowDown" ? 1 : bottoni.length - 1)) % bottoni.length;
+    bottoni.forEach(function (b, i) { b.classList.toggle("sel", i === scelto); });
+    bottoni[scelto].scrollIntoView({ block: "nearest" });
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    bottoni[scelto < 0 ? 0 : scelto].click();
+  }
+});
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(".ricerca")) chiudiEsiti();
+});
+document.addEventListener("keydown", function (e) {
+  var dentro = /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if (e.key === "/" && !dentro) { e.preventDefault(); campo.focus(); campo.select(); }
+});
+
+/* ══════════════════════════════════════════════════════════════════ */
+/* Simulatore: port di DungeonMap.generaCasuale                        */
+/* ══════════════════════════════════════════════════════════════════ */
+
+/* java.util.Random — LCG a 48 bit, identico bit per bit */
+var MASK48 = (1n << 48n) - 1n, MUL = 0x5DEECE66Dn;
+function JavaRandom(seme) { this.seme = (BigInt(seme) ^ MUL) & MASK48; }
+JavaRandom.prototype.next = function (bit) {
+  this.seme = (this.seme * MUL + 0xBn) & MASK48;
+  return Number(this.seme >> (48n - BigInt(bit)));
+};
+JavaRandom.prototype.nextInt = function (limite) {
+  if ((limite & -limite) === limite) return Number((BigInt(limite) * BigInt(this.next(31))) >> 31n);
+  var bit, val;
+  do { bit = this.next(31); val = bit % limite; } while (((bit - val + (limite - 1)) | 0) < 0);
+  return val;
+};
+
+/* String.hashCode + ordine di iterazione di java.util.HashMap.
+   Sotto le 12 chiavi la tabella resta a 16 bucket e non viene mai
+   ridimensionata: l'ordine è quindi deterministico e riproducibile. */
+function hashCode(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return h;
+}
+function ordineHashMap(inserimento) {
+  var bucket = [], i;
+  for (i = 0; i < 16; i++) bucket.push([]);
+  inserimento.forEach(function (k) {
+    var h = hashCode(k);
+    bucket[(h ^ (h >>> 16)) & 15].push(k);
+  });
+  return [].concat.apply([], bucket);
+}
+
+var DIREZIONI = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+var NORMALI = [];
+for (var i = 1; i <= 30; i++) NORMALI.push("level" + (i < 10 ? "0" : "") + i);
+var POOL = { INIZIO: ["Iniziale"], NEGOZIO: ["Negozio"], TESORO: ["Tesoro"], USCITA: ["Scale"] };
+
+/* Genera un piano registrando ogni passo, per il modo passo-passo. */
+function generaPiano(seme) {
+  var rng = new JavaRandom(seme), tr = [];
+  var ordine = ["0,0"], stanze = { "0,0": true }, occupate = [[0, 0]];
+
+  var target = 6 + rng.nextInt(4);
+  tr.push({ t: "via", target: target });
+  var tentativi = 0;
+  while (occupate.length < target && tentativi < 500) {
+    var da = occupate[rng.nextInt(occupate.length)];
+    var d = DIREZIONI[rng.nextInt(DIREZIONI.length)];
+    var nr = da[0] + d[0], nc = da[1] + d[1], k = nr + "," + nc;
+    var ok = !stanze[k];
+    if (ok) { stanze[k] = true; ordine.push(k); occupate.push([nr, nc]); }
+    tentativi++;
+    tr.push({ t: "passo", da: da[0] + "," + da[1], a: k, ok: ok, n: occupate.length, tent: tentativi });
+  }
+
+  /* BFS dalla stanza 1 */
+  var dist = { "0,0": 0 }, ordineDist = ["0,0"], coda = [[0, 0]];
+  tr.push({ t: "bfs-via" });
+  while (coda.length) {
+    var att = coda.shift(), dd = dist[att[0] + "," + att[1]];
+    for (var j = 0; j < 4; j++) {
+      var r2 = att[0] + DIREZIONI[j][0], c2 = att[1] + DIREZIONI[j][1], k2 = r2 + "," + c2;
+      if (stanze[k2] && !(k2 in dist)) {
+        dist[k2] = dd + 1; ordineDist.push(k2); coda.push([r2, c2]);
+        tr.push({ t: "bfs", k: k2, d: dd + 1 });
+      }
+    }
+  }
+
+  var max = 0;
+  ordineDist.forEach(function (k) { if (dist[k] > max) max = dist[k]; });
+  var candidate = ordineHashMap(ordineDist).filter(function (k) { return dist[k] === max; });
+  tr.push({ t: "candidate", max: max, lista: candidate });
+
+  var kUscita = candidate[rng.nextInt(candidate.length)];
+  tr.push({ t: "tipo", k: kUscita, tipo: "USCITA" });
+
+  var restanti = ordineHashMap(ordine).filter(function (k) { return k !== "0,0" && k !== kUscita; });
+  if (restanti.length) {
+    tr.push({ t: "tipo", k: restanti.splice(rng.nextInt(restanti.length), 1)[0], tipo: "NEGOZIO" });
+  }
+  if (restanti.length) {
+    tr.push({ t: "tipo", k: restanti.splice(rng.nextInt(restanti.length), 1)[0], tipo: "TESORO" });
+  }
+
+  var tipoDi = { "0,0": "INIZIO" };
+  tr.forEach(function (e) { if (e.t === "tipo") tipoDi[e.k] = e.tipo; });
+  ordineHashMap(ordine).forEach(function (k) {
+    var tipo = tipoDi[k] || "NORMALE";
+    var pool = POOL[tipo] || NORMALI;
+    tr.push({ t: "tpl", k: k, file: pool[rng.nextInt(pool.length)] });
+  });
+  tr.push({ t: "fine", tentativi: tentativi, stanze: ordine.length, max: max });
+  return tr;
+}
+
+/* Ricostruisce lo stato dopo i primi k+1 eventi. */
+function statoAl(tr, k) {
+  var st = { celle: {}, dist: {}, tipo: { "0,0": "INIZIO" }, tpl: {}, evid: {},
+             fase: "Random walk", msg: "", tent: 0, stanze: 1, max: null, target: 0 };
+  st.celle["0,0"] = true;
+  for (var i = 0; i <= k && i < tr.length; i++) {
+    var e = tr[i];
+    if (e.t === "via") {
+      st.target = e.target;
+      st.msg = "Il generatore decide di fare <b>" + e.target + " stanze</b> " +
+               "(<code>6 + rng.nextInt(4)</code>). Si parte dalla cella <b>0,0</b>, che è sempre la stanza 1.";
+    } else if (e.t === "passo") {
+      st.tent = e.tent; st.stanze = e.n; st.evid = {};
+      if (e.ok) {
+        st.celle[e.a] = true; st.evid[e.a] = "nuova";
+        st.msg = "Tentativo " + e.tent + ": da <b>" + e.da + "</b> verso <b>" + e.a +
+                 "</b> → cella libera, <b>occupata</b>. Stanze: " + e.n + "/" + st.target + ".";
+      } else {
+        st.evid[e.a] = "scarto";
+        st.msg = "Tentativo " + e.tent + ": da <b>" + e.da + "</b> verso <b>" + e.a +
+                 "</b> → già occupata, si <b>scarta</b> e si riprova. Il contatore avanza comunque.";
+      }
+    } else if (e.t === "bfs-via") {
+      st.fase = "BFS dall'ingresso"; st.dist["0,0"] = 0; st.evid = {};
+      st.msg = "Random walk finito: <b>" + st.stanze + " stanze</b> in " + st.tent +
+               " tentativi. Ora una <b>visita in ampiezza</b> dalla stanza 1 misura la distanza di ognuna.";
+    } else if (e.t === "bfs") {
+      st.dist[e.k] = e.d; st.evid = {}; st.evid[e.k] = "nuova";
+      st.msg = "La stanza <b>" + e.k + "</b> è a <b>distanza " + e.d + "</b> dall'ingresso.";
+    } else if (e.t === "candidate") {
+      st.max = e.max; st.evid = {};
+      e.lista.forEach(function (k) { st.evid[k] = "cand"; });
+      st.fase = "Scelta dell'uscita";
+      st.msg = "Distanza massima: <b>" + e.max + "</b>. Le candidate a ospitare le scale sono <b>" +
+               e.lista.length + "</b> (evidenziate). Una viene scelta a caso fra queste — " +
+               "<b>mai</b> fra tutte le stanze, altrimenti l'uscita potrebbe capitare accanto all'ingresso.";
+    } else if (e.t === "tipo") {
+      st.tipo[e.k] = e.tipo; st.evid = {}; st.evid[e.k] = "nuova";
+      st.fase = "Stanze speciali";
+      if (e.tipo === "USCITA") st.msg = "Le <b>scale</b> vanno in <b>" + e.k + "</b>, a distanza massima dall'ingresso.";
+      if (e.tipo === "NEGOZIO") st.msg = "Il <b>negozio</b> va in <b>" + e.k + "</b>, pescato fra le stanze rimaste (escluse partenza e uscita).";
+      if (e.tipo === "TESORO") st.msg = "Il <b>tesoro</b> va in <b>" + e.k + "</b>. I due <code>if (!rimanenti.isEmpty())</code> evitano <code>rng.nextInt(0)</code>, che lancerebbe un'eccezione.";
+    } else if (e.t === "tpl") {
+      st.tpl[e.k] = e.file; st.evid = {}; st.evid[e.k] = "nuova";
+      st.fase = "Template";
+      st.msg = "Alla stanza <b>" + e.k + "</b> tocca il template <b>" + e.file +
+               ".txt</b>. La scelta si fa <b>una volta sola per piano</b>: rientrando, la stanza è identica.";
+    } else if (e.t === "fine") {
+      st.evid = {}; st.fase = "Piano pronto";
+      st.msg = "<b>" + e.stanze + " stanze</b>, generate in " + e.tentativi +
+               " tentativi di random walk. L'uscita è a distanza <b>" + e.max +
+               "</b>. Il piano è connesso <b>per costruzione</b>: ogni stanza è nata attaccata a una già raggiungibile.";
+    }
+  }
+  return st;
+}
+
+var CLASSE = { INIZIO: "sv-acc", NEGOZIO: "sv-oro", TESORO: "sv-blu", USCITA: "sv-rosso", NORMALE: "sv-scatola" };
+var ETICHETTA = { INIZIO: "inizio", NEGOZIO: "negozio", TESORO: "tesoro", USCITA: "scale" };
+
+function disegna(st) {
+  var chiavi = Object.keys(st.celle);
+  var rr = chiavi.map(function (k) { return +k.split(",")[0]; });
+  var cc = chiavi.map(function (k) { return +k.split(",")[1]; });
+  var minR = Math.min.apply(null, rr), maxR = Math.max.apply(null, rr);
+  var minC = Math.min.apply(null, cc), maxC = Math.max.apply(null, cc);
+  var W = 88, H = 66, G = 12, P = 10;
+  var larg = (maxC - minC + 1) * (W + G) - G + P * 2;
+  var alt = (maxR - minR + 1) * (H + G) - G + P * 2;
+  var s = '<svg viewBox="0 0 ' + larg + " " + alt + '" role="img" ' +
+          'aria-label="Piano generato: ' + chiavi.length + ' stanze">';
+
+  /* porte fra stanze adiacenti */
+  chiavi.forEach(function (k) {
+    var p = k.split(","), r = +p[0], c = +p[1];
+    var x = P + (c - minC) * (W + G), y = P + (r - minR) * (H + G);
+    if (st.celle[r + "," + (c + 1)]) {
+      s += '<rect x="' + (x + W) + '" y="' + (y + H / 2 - 5) + '" width="' + G +
+           '" height="10" fill="var(--tenue)" opacity=".45"/>';
+    }
+    if (st.celle[(r + 1) + "," + c]) {
+      s += '<rect x="' + (x + W / 2 - 5) + '" y="' + (y + H) + '" width="10" height="' + G +
+           '" fill="var(--tenue)" opacity=".45"/>';
+    }
+  });
+
+  chiavi.forEach(function (k) {
+    var p = k.split(","), r = +p[0], c = +p[1];
+    var x = P + (c - minC) * (W + G), y = P + (r - minR) * (H + G);
+    var tipo = st.tipo[k] || "NORMALE";
+    var d = st.dist[k];
+    /* lo stile inline deve vincere sulle classi CSS del foglio di stile,
+       altrimenti fill e stroke della classe hanno la precedenza */
+    var stile = [], dash = "";
+    if (tipo === "NORMALE" && d !== undefined && st.max === null) {
+      stile.push("fill:var(--acc)", "fill-opacity:" + (0.1 + 0.45 * Math.min(1, d / 4)).toFixed(2));
+    }
+    var ev = st.evid[k];
+    if (ev === "nuova") { stile.push("stroke:var(--acc)", "stroke-width:3"); }
+    else if (ev === "cand") { stile.push("stroke:var(--rosso)", "stroke-width:3"); dash = ' stroke-dasharray="5 3"'; }
+    else if (ev === "scarto") { stile.push("stroke:var(--rosso)", "stroke-width:2"); dash = ' stroke-dasharray="3 3"'; }
+    else stile.push("stroke-width:1.5");
+
+    s += '<rect class="' + CLASSE[tipo] + '" x="' + x + '" y="' + y + '" width="' + W +
+         '" height="' + H + '" rx="9" style="' + stile.join(";") + '"' + dash + "/>";
+    if (d !== undefined) {
+      s += '<text x="' + (x + 7) + '" y="' + (y + 17) + '" class="sv-p" font-size="10">d' + d + "</text>";
+    }
+    s += '<text x="' + (x + W - 7) + '" y="' + (y + 17) + '" class="sv-p" font-size="9" text-anchor="end">' +
+         k + "</text>";
+    if (ETICHETTA[tipo]) {
+      s += '<text x="' + (x + W / 2) + '" y="' + (y + 40) + '" class="sv-tm" text-anchor="middle" font-weight="700">' +
+           ETICHETTA[tipo] + "</text>";
+    }
+    if (st.tpl[k]) {
+      s += '<text x="' + (x + W / 2) + '" y="' + (y + (ETICHETTA[tipo] ? 56 : 44)) +
+           '" class="sv-p" text-anchor="middle" font-size="9.5">' + st.tpl[k] + "</text>";
+    }
+  });
+  return s + "</svg>";
+}
+
+var tela = $("#sim-tela"), stato = $("#sim-stato"), campoSeme = $("#sim-seme");
+var bAvanti = $("#sim-avanti");
+var traccia = [], passo = 0;
+
+function mostra(k) {
+  var st = statoAl(traccia, k);
+  tela.innerHTML = disegna(st);
+  stato.innerHTML = '<span class="fase">' + st.fase + "</span>" + st.msg;
+  $("#sim-n-stanze").textContent = Object.keys(st.celle).length;
+  $("#sim-n-tent").textContent = st.tent || "—";
+  $("#sim-n-dist").textContent = st.max === null ? "—" : st.max;
+  bAvanti.disabled = k >= traccia.length - 1;
+}
+function leggiSeme() {
+  var v = (campoSeme.value || "").trim();
+  if (!/^-?\d+$/.test(v)) { v = "42"; campoSeme.value = v; }
+  return v;
+}
+function rigenera(passoPasso) {
+  traccia = generaPiano(leggiSeme());
+  passo = passoPasso ? 0 : traccia.length - 1;
+  mostra(passo);
+}
+$("#sim-genera").addEventListener("click", function () { rigenera(false); });
+$("#sim-passo").addEventListener("click", function () { rigenera(true); });
+$("#sim-avanti").addEventListener("click", function () {
+  if (passo < traccia.length - 1) mostra(++passo);
+});
+$("#sim-caso").addEventListener("click", function () {
+  campoSeme.value = String(Math.floor(Math.random() * 1000000));
+  rigenera(false);
+});
+campoSeme.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") { e.preventDefault(); rigenera(false); }
+});
+rigenera(false);
+
+aggiornaScroll();
+})();
+</script>
+</body>
+</html>

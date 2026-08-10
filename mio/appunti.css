@@ -10,18 +10,13 @@ h1{
 }
 h2{
   color: blue;
+  margin:20px 0px 10px 0px;
 }
 ul{
   margin:-10px 0px 0px 0px;
 }
-h2{
-  margin:20px 0px 10px 0px;
-}
 .cracco{
   margin:-20px 0px 0px 0px;
-}
-.craccos{
-  margin:-10px 0px 0px 0px;
 }
 .rosso{
   color: red;

@@ -1,5 +1,4 @@
 var gg = 0;
-var punteggio = 0;
 function colore() {
   var gionnis = document.querySelector("link");
   if (gg == 0) {
@@ -104,7 +103,6 @@ function assumibuzi() {
 
 function buziproduce() {
   soldi = soldi + (buzi.produzione * buzi.godness) / 100;
-  punteggio = punteggio + (buzi.produzione * buzi.godness) / 100;
 }
 
 function buzipotenzia() {
@@ -137,7 +135,6 @@ function assumiernisa() {
 
 function ernisaproduci() {
   soldi = soldi + (ernisa.produzione * ernisa.godness) / 100;
-  punteggio = punteggio + (ernisa.produzione * ernisa.godness) / 100;
 }
 
 function ernisapotenzia() {
@@ -208,7 +205,6 @@ function assumiprime() {
 
 function primeproduce() {
   soldi = soldi + prime.produzione;
-  punteggio = punteggio + prime.produzione;
 }
 
 function primepotenzia() {
@@ -232,7 +228,6 @@ function primepotenzia() {
 
 function sostegnistatali() {
   soldi = soldi + izuru.stipendio * izuru.quantita;
-  punteggio = punteggio + izuru.stipendio * izuru.quantita;
 }
 
 function stipendi() {
