@@ -20,6 +20,10 @@ button {
   background-color: #FFA343;
 }
 
+.mirrored {
+  transform: scaleX(-1);
+}
+
 p.rainbow {
   background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet, red);
   background-size: 200% auto;
