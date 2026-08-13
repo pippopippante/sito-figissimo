@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integrali — il ricettario</title>
+<meta name="description" content="Gli integrali come ricette: nome, quando si usa, procedimento. Base, fast, composte, sostituzione, per parti, fratte, impropri.">
+<link rel="stylesheet" href="stile.css">
+</head>
+<body>
+
+<header>
+  <div class="alta">
+    <a class="marchio" href="#cima">Integrali<small>il ricettario</small></a>
+    <div class="cerca">
+      <input id="cerca" type="search" placeholder="cerca una formula…   ( / )"
+             autocomplete="off" spellcheck="false" aria-label="Cerca">
+    </div>
+    <button class="btn" id="tema" aria-label="Cambia tema">🌙</button>
+  </div>
+  <nav class="chip" id="chip">
+    <a href="#base">base</a>
+    <a href="#fast">fast</a>
+    <a href="#composte">composte</a>
+    <a href="#sostituzione">sostituzione</a>
+    <a href="#parti">per parti</a>
+    <a href="#fratte">fratte</a>
+    <a href="#algebriche">fratte algebriche</a>
+    <a href="#impropri">impropri</a>
+  </nav>
+</header>
+
+<main id="cima">
+<div class="pagina">
+
+<!-- ═══ APERTURA ═══════════════════════════════════════════════════ -->
+<div class="apertura">
+  <h1>Integrali</h1>
+  <p class="sotto">otto ricette. per ognuna: come si chiama, quando si usa, come si fa.</p>
+  <p class="regola">vale per tutte: se l'integrale è indefinito, alla fine ci va
+    <b>+ c</b>.</p>
+</div>
+
+<section class="ricetta" id="via">
+  <div class="testata">
+    <h2>Da dove parti</h2>
+  </div>
+  <div class="voce blocco">
+    <ol class="via">
+      <li>è già una di <a href="#base">base</a>? <span class="poi">hai finito</span></li>
+      <li>dentro c'è già la derivata di un pezzo? <span class="poi">→ <a href="#composte">composte</a></span></li>
+      <li>c'è una parte scomoda da rinominare? <span class="poi">→ <a href="#sostituzione">sostituzione</a></span></li>
+      <li>è un prodotto di due cose di tipo diverso? <span class="poi">→ <a href="#parti">per parti</a></span></li>
+      <li>è un polinomio fratto un polinomio? <span class="poi">→ <a href="#fratte">fratte</a></span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══ 01 BASE ════════════════════════════════════════════════════ -->
+<section class="ricetta" id="base">
+  <div class="testata">
+    <span class="numero">01</span>
+    <h2>Base</h2>
+    <button class="scan" data-scan="Immagine 2026-08-13 015228.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>sono i mattoni: il punto in cui ogni altra ricetta deve
+    farti arrivare. Se sei qui, hai finito.</p>
+
+  <p class="et">formule</p>
+
+  <div class="voce">
+    <span class="nome">potenza</span>
+    <span class="val m"><span class="in">∫</span><i>x</i><sup>n</sup> <span class="op">dx</span>
+      &nbsp;=&nbsp; <span class="fr"><span><i>x</i><sup>n+1</sup></span><span>n+1</span></span></span>
+    <p class="cond">n ≠ −1 &nbsp;·&nbsp; se n = −1 è il logaritmo qui sotto</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">reciproco</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span><i>x</i></span></span>
+      <span class="op">dx</span> &nbsp;=&nbsp; <span class="op">ln</span>&thinsp;|<i>x</i>|</span>
+    <p class="cond">il valore assoluto ci va sempre</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">esponenziale</span>
+    <span class="val m"><span class="in">∫</span><i>e</i><sup>x</sup> <span class="op">dx</span>
+      &nbsp;=&nbsp; <i>e</i><sup>x</sup>
+      &nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;
+      <span class="in">∫</span><i>e</i><sup>−x</sup> <span class="op">dx</span>
+      &nbsp;=&nbsp; −<i>e</i><sup>−x</sup></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">base a</span>
+    <span class="val m"><span class="in">∫</span><i>a</i><sup>x</sup> <span class="op">dx</span>
+      &nbsp;=&nbsp;
+      <span class="fr"><span><i>a</i><sup>x</sup></span><span><span class="op">ln</span>&thinsp;<i>a</i></span></span></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">goniometriche</span>
+    <span class="val m">
+      <span class="riga"><span class="op">sen</span> &nbsp;→&nbsp; <span class="op">cos</span>
+        &nbsp;→&nbsp; −<span class="op">sen</span></span>
+      <span class="riga"><span class="op">sen</span> &nbsp;←&nbsp; −<span class="op">cos</span>
+        &nbsp;←&nbsp; −<span class="op">sen</span></span>
+      <span class="riga"><span class="in">∫</span><span class="op">sen</span> <i>x</i> = −<span class="op">cos</span> <i>x</i>
+        &nbsp;&nbsp;·&nbsp;&nbsp;
+        <span class="in">∫</span><span class="op">cos</span> <i>x</i> = <span class="op">sen</span> <i>x</i></span>
+    </span>
+    <p class="cond">→ derivi &nbsp;·&nbsp; ← integri</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">quelle scordate</span>
+    <span class="val m">
+      <span class="riga"><span class="in">∫</span>
+        <span class="fr"><span>1</span><span><span class="op">cos</span><sup>2</sup><i>x</i></span></span>
+        <span class="op">dx</span> = <span class="op">tan</span> <i>x</i></span>
+      <span class="riga"><span class="in">∫</span><span class="op">tan</span> <i>x</i> <span class="op">dx</span>
+        = −<span class="op">ln</span>|<span class="op">cos</span> <i>x</i>|</span>
+    </span>
+  </div>
+</section>
+
+<!-- ═══ 02 FAST ════════════════════════════════════════════════════ -->
+<section class="ricetta" id="fast">
+  <div class="testata">
+    <span class="numero">02</span>
+    <h2>Integrali fast</h2>
+    <button class="scan" data-scan="Immagine 2026-08-13 015228.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>li devi riconoscere a occhio, senza calcolare niente.
+    Sono le risposte in cui finiscono quasi tutti gli esercizi.</p>
+
+  <p class="et">formule</p>
+
+  <div class="voce">
+    <span class="nome">arctan</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span>1+<i>x</i><sup>2</sup></span></span>
+      <span class="op">dx</span> &nbsp;=&nbsp; <span class="op">arctan</span> <i>x</i></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">arcsin</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span><span class="rad">1−<i>x</i><sup>2</sup></span></span></span>
+      <span class="op">dx</span> &nbsp;=&nbsp; <span class="op">arcsin</span> <i>x</i></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">arctan con y</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span><i>x</i><sup>2</sup>+<i>y</i><sup>2</sup></span></span>
+      <span class="op">dx</span> &nbsp;=&nbsp;
+      <span class="fr"><span>1</span><span><i>y</i></span></span>
+      <span class="op">arctan</span>
+      <span class="fr"><span><i>x</i></span><span><i>y</i></span></span></span>
+    <p class="cond">è quello che ti serve nelle fratte con Δ &lt; 0</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">regola del 1/a</span>
+    <span class="val">
+      <p class="testo">se dentro c'è <span class="m"><i>ax</i>+<i>b</i></span>, integri normale
+        e poi dividi per <span class="m"><i>a</i></span>.</p>
+      <div class="es">
+        <p class="et">es.</p>
+        <span class="m">
+          <span class="in">∫</span><i>e</i><sup>ax</sup> <span class="op">dx</span> =
+          <span class="fr"><span>1</span><span><i>a</i></span></span><i>e</i><sup>ax</sup>
+          &nbsp;&nbsp;·&nbsp;&nbsp;
+          <span class="in">∫</span><span class="op">sen</span>(<i>ax</i>) <span class="op">dx</span> =
+          −<span class="fr"><span>1</span><span><i>a</i></span></span><span class="op">cos</span>(<i>ax</i>)
+          &nbsp;&nbsp;·&nbsp;&nbsp;
+          <span class="in">∫</span>
+          <span class="fr"><span>1</span><span><i>ax</i>+<i>b</i></span></span>
+          <span class="op">dx</span> =
+          <span class="fr"><span>1</span><span><i>a</i></span></span><span class="op">ln</span>|<i>ax</i>+<i>b</i>|
+        </span>
+      </div>
+    </span>
+    <p class="cond">vale solo se dentro è di primo grado: con x² non funziona, lì serve la sostituzione</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">x<sub>1,2</sub></span>
+    <span class="val m"><span class="fr">
+      <span>−<i>b</i> ± <span class="rad"><i>b</i><sup>2</sup>−4<i>ac</i></span></span>
+      <span>2<i>a</i></span></span></span>
+    <p class="cond">serve per scomporre i denominatori</p>
+  </div>
+</section>
+
+<!-- ═══ 03 COMPOSTE ════════════════════════════════════════════════ -->
+<section class="ricetta" id="composte">
+  <div class="testata">
+    <span class="numero">03</span>
+    <h2>Composte</h2>
+    <button class="scan" data-scan="Immagine 2026-08-13 015246.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>accanto a <span class="m"><i>f</i>(<i>x</i>)</span> trovi già
+    la sua derivata <span class="m"><i>f</i>&thinsp;′(<i>x</i>)</span>. È la sostituzione
+    fatta a mente: se la vedi, non serve scrivere niente.</p>
+
+  <p class="et">procedimento</p>
+  <div class="voce blocco">
+    <ol class="passi">
+      <li>riconosci <span class="m"><i>f</i>(<i>x</i>)</span> e la sua derivata dentro l'integrale</li>
+      <li>integri solo la funzione <b>di fuori</b> e lasci <span class="m"><i>f</i>(<i>x</i>)</span> dov'è</li>
+      <li>se manca una costante la metti dentro e la compensi fuori dall'integrale</li>
+    </ol>
+  </div>
+
+  <p class="et">formule</p>
+
+  <div class="voce">
+    <span class="nome">potenza</span>
+    <span class="val m"><span class="in">∫</span><span class="qd">[</span><i>f</i><span class="qd">]</span><sup>a</sup>
+      · <i>f</i>&thinsp;′ <span class="op">dx</span> &nbsp;=&nbsp;
+      <span class="fr">
+        <span><span class="qd">[</span><i>f</i><span class="qd">]</span><sup>a+1</sup></span>
+        <span><i>a</i>+1</span></span></span>
+    <p class="cond">a ≠ −1</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">logaritmo</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span><i>f</i>&thinsp;′</span><span><i>f</i></span></span>
+      <span class="op">dx</span> &nbsp;=&nbsp; <span class="op">ln</span>&thinsp;|<i>f</i>|</span>
+    <p class="cond">valore assoluto, non parentesi quadre</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">tutte le altre</span>
+    <span class="val m"><span class="in">∫</span><i>f</i>&thinsp;′ <i>e</i><sup>f</sup> = <i>e</i><sup>f</sup>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <span class="in">∫</span><i>f</i>&thinsp;′ <span class="op">sen</span> <i>f</i> = −<span class="op">cos</span> <i>f</i>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <span class="in">∫</span>
+      <span class="fr"><span><i>f</i>&thinsp;′</span><span>1+<i>f</i><sup>2</sup></span></span>
+      = <span class="op">arctan</span> <i>f</i></span>
+  </div>
+
+  <p class="et">esempio</p>
+  <div class="voce blocco">
+    <div class="es">
+      <span class="m">
+        <span class="riga"><span class="in">∫</span>2<i>x</i>(<i>x</i><sup>2</sup>+1)<sup>3</sup> <span class="op">dx</span> =
+          <span class="fr"><span>(<i>x</i><sup>2</sup>+1)<sup>4</sup></span><span>4</span></span> + <i>c</i></span>
+        <span class="riga"><span class="in">∫</span>
+          <span class="fr"><span>2<i>x</i></span><span><i>x</i><sup>2</sup>+1</span></span>
+          <span class="op">dx</span> = <span class="op">ln</span>(<i>x</i><sup>2</sup>+1) + <i>c</i></span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 04 SOSTITUZIONE ════════════════════════════════════════════ -->
+<section class="ricetta" id="sostituzione">
+  <div class="testata">
+    <span class="numero">04</span>
+    <h2>Sostituzione</h2>
+    <button class="scan" data-scan="Immagine 2026-08-13 024626.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>c'è una parte scomoda che puoi rinominare, e non riesci a
+    vedere la composta a occhio.</p>
+
+  <p class="et">procedimento</p>
+  <div class="voce blocco">
+    <ol class="passi">
+      <li>individua la parte scomoda:
+        <span class="m"><i>g</i>(<i>x</i>) = <i>t</i></span></li>
+      <li><span class="m"><span class="op">dx</span> =
+        <span class="fr"><span><span class="op">dt</span></span><span><i>g</i>&thinsp;′(<i>x</i>)</span></span></span></li>
+      <li>sostituisci i pezzi:
+        <span class="m"><span class="in">∫</span><i>g</i>(<i>x</i>) <span class="op">dx</span>
+          &nbsp;→&nbsp; <span class="in">∫</span><i>t</i>
+          <span class="fr"><span><span class="op">dt</span></span><span><i>g</i>&thinsp;′(<i>x</i>)</span></span></span>
+        <ul><li><b>per tutte le x</b>: deve essere tutto <span class="m"><i>t</i></span></li></ul></li>
+      <li>risolvi e torni a <span class="m"><i>x</i></span></li>
+    </ol>
+  </div>
+
+  <p class="et">esempio</p>
+  <div class="voce blocco">
+    <div class="es">
+      <span class="m">
+        <span class="riga"><span class="in">∫</span><i>x</i> <span class="rad"><i>x</i><sup>2</sup>+1</span> <span class="op">dx</span></span>
+        <span class="riga"><i>t</i> = <i>x</i><sup>2</sup>+1 &nbsp;→&nbsp;
+          <span class="op">dt</span> = 2<i>x</i> <span class="op">dx</span> &nbsp;→&nbsp;
+          <i>x</i> <span class="op">dx</span> =
+          <span class="fr"><span><span class="op">dt</span></span><span>2</span></span></span>
+        <span class="riga">
+          <span class="fr"><span>1</span><span>2</span></span>
+          <span class="in">∫</span><span class="rad"><i>t</i></span> <span class="op">dt</span> =
+          <span class="fr"><span>1</span><span>3</span></span>
+          <i>t</i><sup>3/2</sup> =
+          <span class="fr"><span>1</span><span>3</span></span>
+          (<i>x</i><sup>2</sup>+1)<sup>3/2</sup> + <i>c</i></span>
+      </span>
+    </div>
+    <p class="cond">se l'integrale è definito: o cambi anche gli estremi passando a t,
+      o torni alla x prima di sostituirli. Non mischiare le due cose.</p>
+  </div>
+</section>
+
+<!-- ═══ 05 PER PARTI ═══════════════════════════════════════════════ -->
+<section class="ricetta" id="parti">
+  <div class="testata">
+    <span class="numero">05</span>
+    <h2>Per parti</h2>
+    <span class="titolo-m"><i>f</i>(<i>x</i>) · <i>g</i>(<i>x</i>)</span>
+    <button class="scan" data-scan="Immagine 2026-08-13 015308.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>è un prodotto di due funzioni di <b>tipo diverso</b>
+    (un polinomio per un'esponenziale, un logaritmo per una potenza…) e non c'è nessuna derivata
+    già pronta dentro.</p>
+
+  <p class="et">la formula</p>
+  <div class="voce senza-nome">
+    <span class="val m"><span class="in">∫</span><i>f</i> · <i>g</i> <span class="op">dx</span>
+      &nbsp;=&nbsp; <i>f</i> · <i>G</i> &nbsp;−&nbsp;
+      <span class="in">∫</span><i>f</i>&thinsp;′ · <i>G</i> <span class="op">dx</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="inciso">dove <i>G</i> = <span class="in">∫</span><i>g</i></span></span>
+    <p class="cond">l'integrale che ti resta deve essere <b>più facile</b> di quello di partenza:
+      se peggiora, hai scelto al contrario</p>
+  </div>
+
+  <p class="et">procedimento</p>
+  <div class="voce blocco">
+    <ol class="passi">
+      <li>decidi chi è <span class="m"><i>f</i></span> e chi è <span class="m"><i>g</i></span>
+        <ul>
+          <li><span class="m"><i>f</i></span> verrà <b>derivato</b></li>
+          <li><span class="m"><i>g</i></span> verrà <b>integrato</b></li>
+        </ul></li>
+      <li>scegli il <span class="m"><i>f</i></span> con questo ordine — il primo che trovi lo derivi
+        <ul><li><ol class="prio m" style="font-size:1rem">
+          <li><span class="op">ln</span>(<i>x</i>)</li>
+          <li><span class="op">arctan</span> / <span class="op">arcsin</span></li>
+          <li><i>x</i><sup>2</sup> …</li>
+          <li><span class="op">sen</span>(<i>x</i>), <span class="op">cos</span>(<i>x</i>)</li>
+          <li><i>e</i><sup>x</sup></li>
+        </ol></li></ul></li>
+      <li>applichi la formula e risolvi l'integrale che resta</li>
+    </ol>
+  </div>
+
+  <p class="et">esempio</p>
+  <div class="voce blocco">
+    <div class="es">
+      <span class="m">
+        <span class="riga"><span class="in">∫</span><i>x</i> <span class="op">ln</span> <i>x</i> <span class="op">dx</span>
+          &nbsp;&nbsp;→&nbsp;&nbsp; <i>f</i> = <span class="op">ln</span> <i>x</i>
+          &nbsp;·&nbsp; <i>G</i> = <span class="fr"><span><i>x</i><sup>2</sup></span><span>2</span></span></span>
+        <span class="riga">=
+          <span class="fr"><span><i>x</i><sup>2</sup></span><span>2</span></span>
+          <span class="op">ln</span> <i>x</i> −
+          <span class="fr"><span><i>x</i><sup>2</sup></span><span>4</span></span> + <i>c</i></span>
+      </span>
+    </div>
+  </div>
+
+  <p class="et">il caso che torna indietro</p>
+  <div class="voce blocco">
+    <p class="testo">con <span class="m"><i>e</i><sup>x</sup> · <span class="op">sen</span> <i>x</i></span>
+      (o cos) applichi per parti <b>due volte</b> e ti ritrovi l'integrale di partenza.
+      Chiamalo <span class="m"><i>I</i></span>, portalo a sinistra e risolvi come un'equazione.</p>
+    <div class="es">
+      <span class="m"><i>I</i> = … − <i>I</i> &nbsp;→&nbsp; 2<i>I</i> = … &nbsp;→&nbsp;
+        <i>I</i> = <span class="fr"><span>…</span><span>2</span></span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 06 FRATTE ══════════════════════════════════════════════════ -->
+<section class="ricetta" id="fratte">
+  <div class="testata">
+    <span class="numero">06</span>
+    <h2>Fratte</h2>
+    <span class="titolo-m"><span class="fr"><span><i>f</i>(<i>x</i>)</span><span><i>g</i>(<i>x</i>)</span></span></span>
+    <button class="scan" data-scan="Immagine 2026-08-13 015324.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>è un polinomio diviso un polinomio. Non si integra così com'è:
+    va spezzato finché non diventa una somma di fratte base.</p>
+
+  <p class="et">procedimento</p>
+  <div class="voce blocco">
+    <ol class="passi">
+      <li>sopra c'è la derivata di sotto? <span class="poi">→ è solo un
+        <a href="#composte">logaritmo</a>, hai finito</span></li>
+      <li>è già una fratta base? <span class="poi">→ vedi la tabella qui sotto</span></li>
+      <li><span class="m">grado <i>f</i> ≥ grado <i>g</i></span> → fai la <b>divisione</b> tra polinomi
+        <ul><li>resta <span class="m">quoziente +
+          <span class="fr"><span>resto</span><span><i>g</i></span></span></span>,
+          e il resto ora ha grado più basso</li></ul></li>
+      <li><span class="m">grado <i>f</i> &lt; grado <i>g</i></span> → vai alle
+        <a href="#algebriche">fratte algebriche</a></li>
+    </ol>
+  </div>
+
+  <p class="et">le fratte base — dove devi arrivare</p>
+
+  <div class="voce">
+    <span class="nome">primo grado</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span><i>x</i>−<i>x</i><sub>0</sub></span></span>
+      <span class="op">dx</span> = <span class="op">ln</span>|<i>x</i>−<i>x</i><sub>0</sub>|</span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">con il coefficiente</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span><i>ax</i>+<i>b</i></span></span>
+      <span class="op">dx</span> =
+      <span class="fr"><span>1</span><span><i>a</i></span></span>
+      <span class="op">ln</span>|<i>ax</i>+<i>b</i>|</span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">al quadrato</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span>(<i>x</i>−<i>x</i><sub>0</sub>)<sup>2</sup></span></span>
+      <span class="op">dx</span> = −
+      <span class="fr"><span>1</span><span><i>x</i>−<i>x</i><sub>0</sub></span></span></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">alla n</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span>(<i>x</i>−<i>x</i><sub>0</sub>)<sup>n</sup></span></span>
+      <span class="op">dx</span> =
+      <span class="fr">
+        <span>1</span>
+        <span>(1−<i>n</i>)(<i>x</i>−<i>x</i><sub>0</sub>)<sup>n−1</sup></span></span></span>
+    <p class="cond">n ≠ 1 &nbsp;·&nbsp; è la potenza normale con esponente −n</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">derivata sopra</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span><i>g</i>&thinsp;′(<i>x</i>)</span><span><i>g</i>(<i>x</i>)</span></span>
+      <span class="op">dx</span> = <span class="op">ln</span>|<i>g</i>(<i>x</i>)|</span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">somma di quadrati</span>
+    <span class="val m"><span class="in">∫</span>
+      <span class="fr"><span>1</span><span><i>x</i><sup>2</sup>+<i>y</i><sup>2</sup></span></span>
+      <span class="op">dx</span> =
+      <span class="fr"><span>1</span><span><i>y</i></span></span>
+      <span class="op">arctan</span>
+      <span class="fr"><span><i>x</i></span><span><i>y</i></span></span></span>
+    <p class="cond">non si scompone: qui non ci sono radici reali</p>
+  </div>
+
+  <p class="et">esempio</p>
+  <div class="voce blocco">
+    <div class="es">
+      <span class="m"><span class="in">∫</span>
+        <span class="fr"><span>2<i>x</i>+3</span><span><i>x</i><sup>2</sup>+3<i>x</i>+1</span></span>
+        <span class="op">dx</span> = <span class="op">ln</span>|<i>x</i><sup>2</sup>+3<i>x</i>+1| + <i>c</i></span>
+      <p class="cond">sopra c'è esattamente la derivata di sotto: passo 1, niente scomposizione</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 07 FRATTE ALGEBRICHE ═══════════════════════════════════════ -->
+<section class="ricetta" id="algebriche">
+  <div class="testata">
+    <span class="numero">07</span>
+    <h2>Fratte algebriche</h2>
+    <span class="titolo-m"><i>g</i>(<i>x</i>) di grado 2</span>
+    <button class="scan" data-scan="Immagine 2026-08-13 015324.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>sei arrivato a una fratta con il numeratore di grado più basso
+    del denominatore, e il denominatore è di grado 2. Serve a spezzarla nelle
+    <a href="#fratte">fratte base</a>.</p>
+
+  <p class="et">procedimento</p>
+  <div class="voce blocco">
+    <ol class="passi">
+      <li>calcoli il <b>Δ</b> del denominatore</li>
+      <li>spezzi la frazione secondo il caso qui sotto</li>
+      <li>trovi <span class="m"><i>A</i></span> e <span class="m"><i>B</i></span>
+        sostituendo dei valori di <span class="m"><i>x</i></span></li>
+      <li>integri ogni pezzo con le fratte base</li>
+    </ol>
+  </div>
+
+  <p class="et">i tre casi</p>
+  <div class="voce blocco">
+
+    <div class="caso">
+      <b>Δ &gt; 0 — due radici, due logaritmi</b>
+      <div class="m"><span class="riga">
+        <span class="fr"><span><i>f</i>(<i>x</i>)</span><span><i>g</i>(<i>x</i>)</span></span>
+        &nbsp;=&nbsp;
+        <span class="fr"><span><i>A</i></span><span><i>x</i>−<i>x</i><sub>1</sub></span></span> +
+        <span class="fr"><span><i>B</i></span><span><i>x</i>−<i>x</i><sub>2</sub></span></span>
+        &nbsp;→&nbsp;
+        <i>f</i>(<i>x</i>) = <i>A</i>(<i>x</i>−<i>x</i><sub>2</sub>) + <i>B</i>(<i>x</i>−<i>x</i><sub>1</sub>)
+      </span></div>
+      <ol class="passi">
+        <li>metti <span class="m"><i>x</i> = <i>x</i><sub>1</sub></span>: il pezzo con
+          <span class="m"><i>B</i></span> si annulla → esce <span class="m"><i>A</i></span></li>
+        <li>metti <span class="m"><i>x</i> = <i>x</i><sub>2</sub></span> → esce <span class="m"><i>B</i></span></li>
+      </ol>
+      <div class="m"><span class="riga">=&nbsp;
+        <i>A</i> <span class="op">ln</span>|<i>x</i>−<i>x</i><sub>1</sub>| +
+        <i>B</i> <span class="op">ln</span>|<i>x</i>−<i>x</i><sub>2</sub>| + <i>c</i></span></div>
+    </div>
+
+    <div class="caso">
+      <b>Δ = 0 — radice doppia</b>
+      <div class="m">
+        <span class="riga">
+          <span class="fr"><span><i>f</i>(<i>x</i>)</span><span>(<i>x</i>−<i>x</i><sub>0</sub>)<sup>2</sup></span></span>
+          &nbsp;=&nbsp;
+          <span class="fr"><span><i>A</i></span><span><i>x</i>−<i>x</i><sub>0</sub></span></span> +
+          <span class="fr"><span><i>B</i></span><span>(<i>x</i>−<i>x</i><sub>0</sub>)<sup>2</sup></span></span>
+          &nbsp;→&nbsp;
+          <i>f</i>(<i>x</i>) = <i>A</i>(<i>x</i>−<i>x</i><sub>0</sub>) + <i>B</i>
+        </span>
+        <span class="riga">=&nbsp;
+          <i>A</i> <span class="op">ln</span>|<i>x</i>−<i>x</i><sub>0</sub>| −
+          <span class="fr"><span><i>B</i></span><span><i>x</i>−<i>x</i><sub>0</sub></span></span> + <i>c</i></span>
+      </div>
+    </div>
+
+    <div class="caso">
+      <b>Δ &lt; 0 — non si scompone: log + arctan</b>
+      <ol class="passi">
+        <li>spezza il numeratore in <b>derivata del denominatore</b> + <b>costante</b>:
+          <span class="m"><i>f</i>(<i>x</i>) = <i>A</i> · <i>g</i>&thinsp;′(<i>x</i>) + <i>B</i></span></li>
+        <li>il pezzo con <span class="m"><i>A</i></span> è un logaritmo:
+          <span class="m"><i>A</i> <span class="op">ln</span>|<i>g</i>(<i>x</i>)|</span></li>
+        <li>sul pezzo con <span class="m"><i>B</i></span> completa il quadrato:
+          <span class="m"><i>g</i>(<i>x</i>) = (<i>x</i>+<i>k</i>)<sup>2</sup> + <i>y</i><sup>2</sup></span></li>
+      </ol>
+      <div class="m">
+        <span class="riga"><span class="in">∫</span>
+          <span class="fr"><span><span class="op">dx</span></span><span>(<i>x</i>+<i>k</i>)<sup>2</sup>+<i>y</i><sup>2</sup></span></span>
+          &nbsp;=&nbsp;
+          <span class="fr"><span>1</span><span><i>y</i></span></span>
+          <span class="op">arctan</span>
+          <span class="fr"><span><i>x</i>+<i>k</i></span><span><i>y</i></span></span></span>
+        <span class="riga">=&nbsp;
+          <i>A</i> <span class="op">ln</span>|<i>g</i>(<i>x</i>)| +
+          <span class="fr"><span><i>B</i></span><span><i>y</i></span></span>
+          <span class="op">arctan</span>
+          <span class="fr"><span><i>x</i>+<i>k</i></span><span><i>y</i></span></span> + <i>c</i></span>
+      </div>
+    </div>
+  </div>
+
+  <p class="et">se il denominatore è di grado 3</p>
+  <div class="voce senza-nome">
+    <span class="val m">
+      <span class="riga">
+        <span class="fr"><span><i>p</i>(<i>x</i>)</span><span>(<i>x</i>−<i>x</i><sub>0</sub>)(<i>x</i><sup>2</sup>+<i>bx</i>+<i>c</i>)</span></span>
+        &nbsp;=&nbsp;
+        <span class="fr"><span><i>A</i></span><span><i>x</i>−<i>x</i><sub>0</sub></span></span> +
+        <span class="fr"><span><i>Bx</i>+<i>C</i></span><span><i>x</i><sup>2</sup>+<i>bx</i>+<i>c</i></span></span>
+      </span>
+      <span class="riga"><i>p</i>(<i>x</i>) = <i>A</i>(<i>x</i><sup>2</sup>+<i>bx</i>+<i>c</i>) +
+        (<i>Bx</i>+<i>C</i>)(<i>x</i>−<i>x</i><sub>0</sub>)</span>
+    </span>
+    <p class="cond">sul pezzo di grado 1 sopra il quadratico ricadi nel caso Δ &lt; 0</p>
+  </div>
+</section>
+
+<!-- ═══ 08 IMPROPRI ════════════════════════════════════════════════ -->
+<section class="ricetta" id="impropri">
+  <div class="testata">
+    <span class="numero">08</span>
+    <h2>Impropri</h2>
+    <button class="scan" data-scan="Immagine 2026-08-13 015335.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>un estremo è <span class="m">±∞</span>, oppure la funzione
+    esplode in un punto dell'intervallo. La domanda non è "quanto fa" ma
+    <b>converge o diverge</b>.</p>
+
+  <p class="et">procedimento</p>
+  <div class="voce blocco">
+    <ol class="passi">
+      <li>trova <b>dov'è il problema</b>: l'estremo infinito, o il punto in cui la funzione va a
+        <span class="m">∞</span></li>
+      <li>sostituisci quell'estremo con una lettera e mettici davanti un <b>limite</b></li>
+      <li>risolvi l'integrale <b>normale</b>, con una delle ricette di sopra</li>
+      <li>fai il limite: viene un <b>numero</b> → <b>converge</b>,
+        viene <span class="m">∞</span> → <b>diverge</b></li>
+    </ol>
+    <p class="cond">se i problemi sono due, spezzi in due integrali e devono convergere tutti e due</p>
+  </div>
+
+  <p class="et">come si scrive</p>
+  <div class="voce senza-nome">
+    <span class="val m">
+      <span class="riga">
+        <span class="in">∫</span><span class="lims"><span>+∞</span><span>a</span></span>
+        <i>f</i> <span class="op">dx</span> &nbsp;=&nbsp;
+        <span class="op">lim</span><span class="pedice"><i>b</i>→+∞</span>
+        <span class="in">∫</span><span class="lims"><span>b</span><span>a</span></span>
+        <i>f</i> <span class="op">dx</span>
+      </span>
+      <span class="riga">
+        <span class="qd">[</span><i>F</i>(<i>x</i>)<span class="qd">]</span><span class="lims"><span>b</span><span>a</span></span>
+        &nbsp;=&nbsp; <i>F</i>(<i>b</i>) − <i>F</i>(<i>a</i>)
+      </span>
+    </span>
+  </div>
+
+  <p class="et">criterio 1/x<sup>α</sup> — per rispondere senza calcolare</p>
+
+  <div class="voce">
+    <span class="nome">problema all'∞</span>
+    <span class="val m"><span class="in">∫</span><span class="lims"><span>+∞</span><span>a</span></span>
+      <span class="fr"><span>1</span><span><i>x</i><sup>α</sup></span></span>
+      <span class="op">dx</span> &nbsp;&nbsp; converge se &nbsp;<b>α &gt; 1</b></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">problema in 0</span>
+    <span class="val m"><span class="in">∫</span><span class="lims"><span>a</span><span>0</span></span>
+      <span class="fr"><span>1</span><span><i>x</i><sup>α</sup></span></span>
+      <span class="op">dx</span> &nbsp;&nbsp; converge se &nbsp;<b>α &lt; 1</b></span>
+    <p class="cond">sono al contrario &nbsp;·&nbsp; con α = 1 diverge da tutte e due le parti</p>
+  </div>
+</section>
+
+<p id="niente">niente che corrisponde.</p>
+
+</div>
+</main>
+
+<footer>appunti miei — integrali. le foto originali sono dietro il tasto <b>scan</b>.</footer>
+
+<div id="velo" role="dialog" aria-label="Scan degli appunti">
+  <button class="chiudi" aria-label="Chiudi">✕</button>
+  <img id="velo-img" alt="Scan degli appunti">
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
