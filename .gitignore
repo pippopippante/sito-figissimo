@@ -1,0 +1,12 @@
+# roba che Windows semina nelle cartelle
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# roba di macOS
+.DS_Store
+
+# editor
+.vscode/
+*.code-workspace

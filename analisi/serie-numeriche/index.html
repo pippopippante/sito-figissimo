@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serie numeriche — converge o diverge</title>
+<meta name="description" content="Serie numeriche: condizione necessaria, serie note, confronto, asintotico, radice, rapporto, termini misti, serie di potenze.">
+<link rel="stylesheet" href="../stile.css">
+</head>
+<body>
+
+<header>
+  <div class="alta">
+    <a class="su" href="../index.html" aria-label="Torna ad analisi">←</a>
+    <a class="marchio" href="#cima">Serie numeriche<small>converge o diverge</small></a>
+    <div class="cerca">
+      <input id="cerca" type="search" placeholder="cerca un criterio…   ( / )"
+             autocomplete="off" spellcheck="false" aria-label="Cerca">
+    </div>
+    <button class="btn" id="tema" aria-label="Cambia tema">🌙</button>
+  </div>
+  <nav class="chip" id="chip">
+    <a href="#limite">il limite</a>
+    <a href="#note">serie note</a>
+    <a href="#positivi">positivi</a>
+    <a href="#confronto">confronto</a>
+    <a href="#asintotico">asintotico</a>
+    <a href="#radice">radice</a>
+    <a href="#rapporto">rapporto</a>
+    <a href="#misti">misti</a>
+    <a href="#potenze">potenze</a>
+  </nav>
+</header>
+
+<main id="cima">
+<div class="pagina">
+
+<!-- ═══ APERTURA ═══════════════════════════════════════════════════ -->
+<div class="apertura">
+  <h1>Serie numeriche</h1>
+  <p class="sotto">la domanda non è quanto fa. è: converge o diverge?</p>
+  <p class="regola">vale per tutte: se <b>a<sub>n</sub></b> non tende a <b>0</b> la serie diverge.
+    ma se tende a 0 non hai concluso niente.</p>
+</div>
+
+<section class="ricetta" id="via">
+  <div class="testata">
+    <h2>Da dove parti</h2>
+  </div>
+  <div class="voce blocco">
+    <ol class="via">
+      <li>il limite di <span class="m"><i>a</i><sub>n</sub></span> non fa 0?
+        <span class="poi">diverge, hai finito</span></li>
+      <li>la riconosci? <span class="poi">→ <a href="#note">serie note</a></span></li>
+      <li>i termini sono tutti positivi? <span class="poi">→
+        <a href="#confronto">confronto</a>, <a href="#asintotico">asintotico</a>,
+        <a href="#radice">radice</a>, <a href="#rapporto">rapporto</a></span></li>
+      <li>i segni si alternano? <span class="poi">→ <a href="#misti">termini misti</a></span></li>
+      <li>dentro c'è la <span class="m"><i>x</i></span>?
+        <span class="poi">→ <a href="#potenze">serie di potenze</a></span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══ 01 IL LIMITE ═══════════════════════════════════════════════ -->
+<section class="ricetta" id="limite">
+  <div class="testata">
+    <span class="numero">01</span>
+    <h2>Il primo controllo</h2>
+    <span class="titolo-m"><span class="in sg">Σ</span><i>a</i><sub>n</sub></span>
+    <button class="scan" data-scan="Screenshot_20260823_234050_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>sempre, per prima cosa. Guardi solo il termine
+    <span class="m"><i>a</i><sub>n</sub></span>, non la somma: è l'unica risposta che ti arriva gratis.</p>
+
+  <p class="et">la condizione</p>
+
+  <div class="voce">
+    <span class="nome">non fa 0</span>
+    <span class="val m"><span class="op">lim</span><span class="pedice"><i>n</i>→∞</span>
+      <i>a</i><sub>n</sub> ≠ 0 &nbsp;→&nbsp; <span class="op">diverge</span></span>
+    <p class="cond">qui hai finito: non serve altro</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">fa 0</span>
+    <span class="val m"><span class="op">lim</span><span class="pedice"><i>n</i>→∞</span>
+      <i>a</i><sub>n</sub> = 0 &nbsp;→&nbsp; <span class="op">può convergere</span></span>
+    <p class="cond">non hai concluso niente: continua con i criteri</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">il caso speciale</span>
+    <span class="val m"><span class="in sg">Σ</span>
+      <span class="fr"><span>1</span><span><i>n</i></span></span>
+      &nbsp;→&nbsp; <i>a</i><sub>n</sub> → 0 &nbsp; ma &nbsp;<span class="op">diverge</span></span>
+    <p class="cond">è l'<a href="#note">armonica</a>: la prova che il limite a 0 non basta mai</p>
+  </div>
+
+  <p class="et">le due cose che servono dappertutto</p>
+
+  <div class="voce">
+    <span class="nome">scala degli infiniti</span>
+    <span class="val m"><span class="op">ln</span> <i>x</i> &nbsp;&lt;&nbsp; <i>x</i>
+      &nbsp;&lt;&nbsp; <i>x</i><sup>a</sup> &nbsp;&lt;&nbsp; <i>a</i><sup>x</sup>
+      &nbsp;&lt;&nbsp; <i>x</i>! &nbsp;&lt;&nbsp; <i>x</i><sup>x</sup></span>
+    <p class="cond">chi sta più a destra vince: in una frazione conta solo lui</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">fattoriali</span>
+    <span class="val m">
+      <span class="fr"><span><i>n</i>!</span><span>(<i>n</i>+1)!</span></span>
+      &nbsp;=&nbsp;
+      <span class="fr"><span>1</span><span><i>n</i>+1</span></span></span>
+    <p class="cond">il fattoriale grande si mangia il piccolo: resta solo il pezzo che avanza</p>
+  </div>
+</section>
+
+<!-- ═══ 02 SERIE NOTE ══════════════════════════════════════════════ -->
+<section class="ricetta" id="note">
+  <div class="testata">
+    <span class="numero">02</span>
+    <h2>Le serie che sai già</h2>
+    <button class="scan" data-scan="Screenshot_20260823_234050_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>se la riconosci hai già la risposta senza fare niente,
+    e in tre casi su quattro anche la somma.</p>
+
+  <p class="et">le quattro</p>
+
+  <div class="voce">
+    <span class="nome">geometrica</span>
+    <span class="val m"><span class="in sg">Σ</span><span class="lims"><span>∞</span><span><i>n</i>=0</span></span>
+      <i>x</i><sup>n</sup> &nbsp;=&nbsp;
+      <span class="fr"><span>1</span><span>1−<i>x</i></span></span></span>
+    <p class="cond"><span class="m"><i>x</i> ≥ 1</span> diverge a +∞ &nbsp;·&nbsp;
+      <span class="m"><i>x</i> ≤ −1</span> indeterminata &nbsp;→&nbsp; resta solo
+      <span class="m">|<i>x</i>| &lt; 1</span></p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">armonica</span>
+    <span class="val m"><span class="in sg">Σ</span>
+      <span class="fr"><span>1</span><span><i>n</i></span></span></span>
+    <p class="cond">sempre <span class="m"><i>a</i><sub>n</sub> → 0</span>, ma diverge lo stesso</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">generalizzata</span>
+    <span class="val m"><span class="in sg">Σ</span>
+      <span class="fr"><span>1</span><span><i>n</i><sup>a</sup></span></span>
+      &nbsp;&nbsp;converge se &nbsp;<b><i>a</i> &gt; 1</b></span>
+    <p class="cond">è l'armonica con l'esponente: con <span class="m"><i>a</i> = 1</span>
+      torni a lei, e diverge</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">Mengoli</span>
+    <span class="val m">
+      <span class="riga"><span class="in sg">Σ</span>
+        <span class="fr"><span>1</span><span><i>n</i>(<i>n</i>+1)</span></span>
+        &nbsp;→&nbsp;
+        <span class="fr"><span>1</span><span><i>n</i></span></span> −
+        <span class="fr"><span>1</span><span><i>n</i>+1</span></span></span>
+      <span class="riga"><i>S</i><sub>n</sub> =
+        <span class="qd">(</span>1 − <span class="fr"><span>1</span><span>2</span></span><span class="qd">)</span> +
+        <span class="qd">(</span><span class="fr"><span>1</span><span>2</span></span> −
+        <span class="fr"><span>1</span><span>3</span></span><span class="qd">)</span> + …
+        &nbsp;→&nbsp; 1</span>
+    </span>
+    <p class="cond">telescopica: i pezzi si mangiano a coppie e resta solo il primo. fa sempre 1</p>
+  </div>
+
+  <p class="et">riassunto</p>
+  <div class="voce blocco">
+    <div class="tabella">
+      <table class="tab">
+        <thead>
+          <tr><th>serie</th><th>converge se</th><th>somma</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>geometrica</td>
+            <td class="m">|<i>x</i>| &lt; 1</td>
+            <td class="m"><span class="fr"><span>1</span><span>1−<i>x</i></span></span></td>
+          </tr>
+          <tr>
+            <td>armonica</td>
+            <td>mai</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>generalizzata</td>
+            <td class="m"><i>a</i> &gt; 1</td>
+            <td>bho</td>
+          </tr>
+          <tr>
+            <td>telescopica</td>
+            <td>sempre</td>
+            <td class="m">1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 03 TERMINI POSITIVI ════════════════════════════════════════ -->
+<section class="ricetta" id="positivi">
+  <div class="testata">
+    <span class="numero">03</span>
+    <h2>Termini positivi</h2>
+    <span class="titolo-m"><i>a</i><sub>n</sub> ≥ 0</span>
+    <button class="scan" data-scan="Screenshot_20260823_234050_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>i termini sono tutti dello stesso segno. È il caso comodo:
+    da qui in poi valgono i quattro criteri.</p>
+
+  <p class="et">perché è comodo</p>
+  <div class="voce blocco">
+    <ol class="passi">
+      <li>tutto positivo → ogni pezzo che aggiungi fa salire la somma</li>
+      <li>quindi le somme parziali sono <b>monotone crescenti</b></li>
+      <li>quindi il limite è un <b>numero</b> (converge) oppure <b>+∞</b> (diverge)
+        <ul><li>non c'è un terzo caso: non può oscillare</li></ul></li>
+    </ol>
+  </div>
+
+  <p class="et">quale criterio usare</p>
+  <div class="voce blocco">
+    <div class="tabella">
+      <table class="tab">
+        <thead>
+          <tr><th>cosa vedi</th><th>cosa usi</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="m"><span class="op">sen</span></span>,
+              <span class="m"><span class="op">ln</span>(1+…)</span>, radici…</td>
+            <td><a href="#asintotico">confronto asintotico</a></td>
+          </tr>
+          <tr>
+            <td>potenze <span class="m">(…)<sup>n</sup></span></td>
+            <td><a href="#radice">radice</a></td>
+          </tr>
+          <tr>
+            <td>fattoriali <span class="m"><i>n</i>!</span></td>
+            <td><a href="#rapporto">rapporto</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cond">non è una regola, è quello che funziona quasi sempre</p>
+  </div>
+</section>
+
+<!-- ═══ 04 CONFRONTO ═══════════════════════════════════════════════ -->
+<section class="ricetta" id="confronto">
+  <div class="testata">
+    <span class="numero">04</span>
+    <h2>Confronto</h2>
+    <button class="scan" data-scan="Screenshot_20260823_234050_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>riesci a incastrare la tua serie tra 0 e una che conosci già.
+    Non calcoli niente: guardi solo chi è più grande.</p>
+
+  <p class="et">l'ipotesi</p>
+  <div class="voce senza-nome">
+    <span class="val m">0 ≤ <i>a</i><sub>n</sub> ≤ <i>b</i><sub>n</sub></span>
+    <p class="cond">la parte importante è il termine che cresce di più:
+      è quello che decide &nbsp;·&nbsp; <a href="#limite">scala degli infiniti</a></p>
+  </div>
+
+  <p class="et">le due frecce</p>
+
+  <div class="voce">
+    <span class="nome">dall'alto</span>
+    <span class="val m"><i>b</i><sub>n</sub> <span class="op">converge</span>
+      &nbsp;→&nbsp; <i>a</i><sub>n</sub> <span class="op">converge</span></span>
+    <p class="cond">se sta sotto a una che converge, converge anche lei</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">dal basso</span>
+    <span class="val m"><i>a</i><sub>n</sub> <span class="op">diverge</span>
+      &nbsp;→&nbsp; <i>b</i><sub>n</sub> <span class="op">diverge</span></span>
+    <p class="cond">se sta sopra a una che diverge, diverge anche lei</p>
+  </div>
+</section>
+
+<!-- ═══ 05 ASINTOTICO ══════════════════════════════════════════════ -->
+<section class="ricetta" id="asintotico">
+  <div class="testata">
+    <span class="numero">05</span>
+    <h2>Asintotico</h2>
+    <button class="scan" data-scan="Screenshot_20260823_234050_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>la tua serie assomiglia a una che conosci ma è sporca —
+    c'è un seno, un logaritmo, una radice attaccati. Non la incastri: la confronti col limite.</p>
+
+  <p class="et">il criterio</p>
+
+  <div class="voce">
+    <span class="nome">il limite</span>
+    <span class="val m"><span class="op">lim</span><span class="pedice"><i>n</i>→∞</span>
+      <span class="fr"><span><i>a</i><sub>n</sub></span><span><i>b</i><sub>n</sub></span></span>
+      &nbsp;=&nbsp; <i>L</i> ∈ (0, +∞)</span>
+    <p class="cond">dev'essere un numero, e diverso da zero</p>
+  </div>
+
+  <div class="voce">
+    <span class="nome">allora</span>
+    <span class="val m"><i>a</i><sub>n</sub> e <i>b</i><sub>n</sub>
+      <span class="op">convergono / divergono insieme</span></span>
+    <p class="cond">quindi scegli <span class="m"><i>b</i><sub>n</sub></span> tra le
+      <a href="#note">serie note</a> e leggi lì la risposta</p>
+  </div>
+
+  <p class="et">il caso con i rapporti</p>
+  <div class="voce senza-nome">
+    <span class="val m">
+      <span class="riga">
+        <span class="fr"><span><i>a</i><sub>n+1</sub></span><span><i>a</i><sub>n</sub></span></span>
+        &nbsp;·&nbsp;
+        <span class="fr"><span><i>b</i><sub>n</sub></span><span><i>b</i><sub>n+1</sub></span></span>
+        &nbsp;=&nbsp; <i>L</i></span>
+      <span class="riga"><i>L</i> &lt; 1 &nbsp;→&nbsp; <span class="op">converge</span></span>
+    </span>
+    <p class="cond">stesso confronto, fatto sui rapporti invece che sui termini</p>
+  </div>
+</section>
+
+<!-- ═══ 06 RADICE ══════════════════════════════════════════════════ -->
+<section class="ricetta" id="radice">
+  <div class="testata">
+    <span class="numero">06</span>
+    <h2>Radice</h2>
+    <button class="scan" data-scan="Screenshot_20260823_234050_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>c'è un esponente <span class="m"><i>n</i></span> addosso a tutto —
+    le potenze. La radice n-esima se lo porta via.</p>
+
+  <p class="et">il limite</p>
+  <div class="voce senza-nome">
+    <span class="val m"><i>L</i> = <span class="op">lim</span><span class="pedice"><i>n</i>→∞</span>
+      <i class="ind">n</i><span class="rad"><i>a</i><sub>n</sub></span></span>
+  </div>
+
+  <p class="et">i tre casi</p>
+
+  <div class="voce">
+    <span class="nome">L &lt; 1</span>
+    <span class="val m"><span class="op">converge</span></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">L &gt; 1</span>
+    <span class="val m"><span class="op">diverge</span></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">L = 1</span>
+    <span class="val m"><span class="op">niente</span></span>
+    <p class="cond">il criterio è muto: non è che non converge, è che non lo sai.
+      Cambia criterio</p>
+  </div>
+</section>
+
+<!-- ═══ 07 RAPPORTO ════════════════════════════════════════════════ -->
+<section class="ricetta" id="rapporto">
+  <div class="testata">
+    <span class="numero">07</span>
+    <h2>Rapporto</h2>
+    <button class="scan" data-scan="Screenshot_20260823_234050_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>ci sono i fattoriali. Dividendo un termine per il precedente
+    il fattoriale si semplifica quasi tutto.</p>
+
+  <p class="et">il limite</p>
+  <div class="voce senza-nome">
+    <span class="val m"><i>L</i> = <span class="op">lim</span><span class="pedice"><i>n</i>→∞</span>
+      <span class="fr"><span><i>a</i><sub>n+1</sub></span><span><i>a</i><sub>n</sub></span></span></span>
+    <p class="cond">ti serve <span class="m">
+      <span class="fr"><span><i>n</i>!</span><span>(<i>n</i>+1)!</span></span> =
+      <span class="fr"><span>1</span><span><i>n</i>+1</span></span></span></p>
+  </div>
+
+  <p class="et">i tre casi</p>
+
+  <div class="voce">
+    <span class="nome">L &lt; 1</span>
+    <span class="val m"><span class="op">converge</span></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">L &gt; 1</span>
+    <span class="val m"><span class="op">diverge</span></span>
+  </div>
+
+  <div class="voce">
+    <span class="nome">L = 1</span>
+    <span class="val m"><span class="op">niente</span></span>
+    <p class="cond">sono gli stessi tre casi della <a href="#radice">radice</a>:
+      cambia solo il limite che calcoli</p>
+  </div>
+</section>
+
+<!-- ═══ 08 TERMINI MISTI ═══════════════════════════════════════════ -->
+<section class="ricetta" id="misti">
+  <div class="testata">
+    <span class="numero">08</span>
+    <h2>Termini misti</h2>
+    <button class="scan" data-scan="Screenshot_20260823_234104_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>i segni non sono tutti uguali. I quattro criteri di sopra
+    non si applicano così com'è: prima devi renderla positiva.</p>
+
+  <p class="et">procedimento</p>
+  <div class="voce blocco">
+    <ol class="passi">
+      <li>fai <a href="#positivi">termini positivi</a> e applica i criteri di sopra</li>
+      <li><b>converge</b> → è finito, hai finito</li>
+      <li><b>diverge</b> → non hai concluso niente: continua con i 3 check</li>
+    </ol>
+  </div>
+
+  <p class="et">i 3 check</p>
+  <div class="voce blocco">
+    <p class="testo"><span class="m"><i>a</i><sub>n</sub></span> = la parte positiva</p>
+    <ol class="passi">
+      <li><span class="m"><i>a</i><sub>n</sub> &gt; 0</span></li>
+      <li><span class="m"><i>a</i><sub>n</sub></span> decresce</li>
+      <li><span class="m"><i>a</i><sub>n</sub> → 0</span></li>
+    </ol>
+    <p class="cond"><b>3 su 3</b> → converge <b>condizionatamente</b></p>
+  </div>
+</section>
+
+<!-- ═══ 09 SERIE DI POTENZE ════════════════════════════════════════ -->
+<section class="ricetta" id="potenze">
+  <div class="testata">
+    <span class="numero">09</span>
+    <h2>Serie di potenze</h2>
+    <span class="titolo-m"><span class="in sg">Σ</span><i>a</i><sub>n</sub>(<i>x</i>−<i>x</i><sub>0</sub>)<sup>n</sup></span>
+    <button class="scan" data-scan="Screenshot_20260823_234104_Keep Notes.jpg">scan</button>
+  </div>
+  <p class="quando"><b>quando</b>dentro la serie c'è la <span class="m"><i>x</i></span>.
+    È una serie + x: la domanda non è più se converge, ma <b>per quali x</b> converge.</p>
+
+  <p class="et">chi è a<sub>n</sub></p>
+  <div class="voce blocco">
+    <p class="testo"><span class="m"><i>a</i><sub>n</sub></span> è la serie
+      <b>senza</b> la parte con la <span class="m"><i>x</i></span>.</p>
+  </div>
+
+  <p class="et">il limite</p>
+  <div class="voce senza-nome">
+    <span class="val m"><span class="op">lim</span><span class="pedice"><i>n</i>→∞</span>
+      <span class="fr"><span><i>a</i><sub>n+1</sub></span><span><i>a</i><sub>n</sub></span></span>
+      · |<i>x</i>| &nbsp;=&nbsp; <i>C</i> · |<i>x</i>|</span>
+    <p class="cond">è il <a href="#rapporto">rapporto</a> con la x tirata fuori:
+      quello che resta è <span class="m"><i>C</i></span></p>
+  </div>
+
+  <p class="et">i tre casi</p>
+  <div class="voce blocco">
+
+    <div class="caso">
+      <b>C = 0 → R = +∞</b>
+      <p class="testo">converge ovunque, per qualsiasi <span class="m"><i>x</i></span>.</p>
+    </div>
+
+    <div class="caso">
+      <b>C = +∞ → R = 0</b>
+      <p class="testo">converge solo nel centro, cioè solo per
+        <span class="m"><i>x</i> = <i>x</i><sub>0</sub></span>.</p>
+    </div>
+
+    <div class="caso">
+      <b>C = numero → R = 1/C</b>
+      <p class="testo">converge dentro il raggio, e agli estremi
+        <b>devi controllare a mano</b>: ci sostituisci i due valori e torni alle serie numeriche.</p>
+    </div>
+  </div>
+
+  <p class="et">dove converge</p>
+  <div class="voce senza-nome">
+    <span class="val m">|<i>x</i> − <i>x</i><sub>0</sub>| &lt; <i>R</i></span>
+    <p class="cond">il centro è <span class="m"><i>x</i><sub>0</sub></span>:
+      dentro il valore assoluto ci va il meno</p>
+  </div>
+</section>
+
+<p id="niente">niente che corrisponde.</p>
+
+</div>
+</main>
+
+<footer>appunti miei — serie numeriche. le foto originali sono dietro il tasto <b>scan</b>.</footer>
+
+<div id="velo" role="dialog" aria-label="Scan degli appunti">
+  <button class="chiudi" aria-label="Chiudi">✕</button>
+  <img id="velo-img" alt="Scan degli appunti">
+</div>
+
+<script src="../tema.js"></script>
+<script src="../script.js"></script>
+</body>
+</html>

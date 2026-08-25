@@ -1,22 +1,5 @@
-/* ── Tema ─────────────────────────────────────────────────────────── */
-const tasto = document.getElementById('tema');
-const salvato = localStorage.getItem('tema-analisi');
-if (salvato) document.documentElement.dataset.tema = salvato;
-
-function scuroAdesso() {
-  const t = document.documentElement.dataset.tema;
-  if (t) return t === 'scuro';
-  return matchMedia('(prefers-color-scheme:dark)').matches;
-}
-function segnaTasto() { tasto.textContent = scuroAdesso() ? '☀️' : '🌙'; }
-segnaTasto();
-
-tasto.addEventListener('click', () => {
-  const nuovo = scuroAdesso() ? 'chiaro' : 'scuro';
-  document.documentElement.dataset.tema = nuovo;
-  localStorage.setItem('tema-analisi', nuovo);
-  segnaTasto();
-});
+/* il tema sta in tema.js: lo carica anche l'indice, che non ha ne' la
+   ricerca ne' le voci e quindi non carica questo file */
 
 /* ── Ricerca ──────────────────────────────────────────────────────── */
 const campo = document.getElementById('cerca');
@@ -52,7 +35,15 @@ const alias = {
   'cos': 'coseno goniometrica', 'tan': 'arctan tangente',
   'radice': '√ arcsin', 'frazione': 'fratta fratte', 'frazioni': 'fratte',
   'parti': 'per parti', 'delta': 'Δ', 'infinito': '∞ impropri',
-  'converge': 'impropri', 'diverge': 'impropri'
+  'converge': 'impropri', 'diverge': 'impropri',
+  // serie — niente alias per Σ: matcherebbe mezza pagina
+  'fattoriale': 'fattoriali rapporto', 'fattoriali': 'fattoriale rapporto',
+  'alternata': 'misti alterni segni', 'alterna': 'misti alterni segni',
+  'alterni': 'misti segni', 'leibniz': 'misti check decresce',
+  'telescopica': 'mengoli', 'mengoli': 'telescopica',
+  'assoluta': 'misti positivi', 'assolutamente': 'misti positivi',
+  'raggio': 'potenze raggio', 'armonica': 'armonica generalizzata',
+  'geometrica': 'geometrica geo'
 };
 
 let cercavo = false;

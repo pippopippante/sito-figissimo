@@ -38,7 +38,12 @@ header{position:sticky;top:0;z-index:40;border-bottom:1px solid var(--bordo);
   color:var(--inchiostro);white-space:nowrap;line-height:1.15}
 .marchio small{display:block;font-family:var(--mano);font-weight:400;font-size:.66rem;
   letter-spacing:.09em;text-transform:uppercase;color:var(--tenue)}
+/* torna all'indice degli argomenti */
+.su{font-size:1.05rem;line-height:1;text-decoration:none;color:var(--tenue);
+  padding:.28rem .45rem;border-radius:99px}
+.su:hover{color:var(--acc);background:var(--acc-2)}
 .cerca{flex:1;max-width:440px;margin-left:auto}
+.spinta{margin-left:auto}
 .cerca input{width:100%;font:inherit;font-size:.9rem;padding:.44rem .75rem;border-radius:99px;
   border:1px solid var(--bordo);background:var(--pagina);color:var(--inchiostro)}
 .cerca input:focus{outline:2px solid var(--acc);outline-offset:1px;border-color:var(--acc)}
@@ -156,6 +161,11 @@ ol.via a:hover{border-bottom-color:var(--acc)}
 /* integrale */
 .in{font-family:var(--mate);font-style:normal;font-size:1.5em;vertical-align:-.18em;
   margin-right:.06em}
+/* sommatoria: stesso ruolo, ma il glifo e' un'altra cosa e va rialzato */
+.in.sg{font-size:1.4em;vertical-align:-.1em;margin-right:.04em}
+/* indice della radice: la n di ⁿ√ */
+.ind{font-family:var(--mate);font-style:italic;font-size:.62em;vertical-align:.55em;
+  margin-right:-.06em}
 /* estremi impilati */
 .lims{display:inline-flex;flex-direction:column;align-items:flex-start;vertical-align:middle;
   font-size:.56em;line-height:1.2;font-style:normal;margin:0 .1em 0 .02em}
@@ -175,6 +185,30 @@ ol.via a:hover{border-bottom-color:var(--acc)}
 .caso{margin:1.1rem 0 0}
 .caso > b{display:block;font-family:var(--titolo);font-size:1.02rem;color:var(--acc);
   margin-bottom:.25rem}
+
+/* ═══ Tabelle degli appunti ════════════════════════════════════════ */
+.tabella{overflow-x:auto;margin:.5rem 0 0}
+table.tab{border-collapse:collapse;font-size:.92rem}
+table.tab th{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--tenue);text-align:left;white-space:nowrap;
+  padding:0 1.6rem .35rem 0;border-bottom:1px solid var(--bordo)}
+table.tab td{padding:.45rem 1.6rem;border-bottom:1px solid var(--riga);vertical-align:middle}
+table.tab th:last-child,table.tab td:last-child{padding-right:0}
+table.tab td:first-child{padding-left:0;font-size:.71rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--tenue);white-space:nowrap}
+table.tab tr:last-child td{border-bottom:0}
+table.tab .m{font-size:1.02rem;line-height:1.5}
+
+/* ═══ Indice degli argomenti ═══════════════════════════════════════ */
+.tessere{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1rem;
+  margin:1.8rem 0 0}
+.tessera{display:block;text-decoration:none;color:inherit;background:var(--nota);
+  border:1px solid var(--riga);border-radius:6px;padding:1.15rem 1.25rem 1.3rem}
+.tessera:hover{border-color:var(--acc);background:var(--acc-2)}
+.tessera h2{font-family:var(--titolo);font-size:1.5rem;font-weight:600;margin:0;line-height:1.2}
+.tessera .occhiello{display:block;font-size:.66rem;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--acc);margin:.25rem 0 .5rem}
+.tessera p{margin:0;font-size:.9rem;color:var(--tenue);line-height:1.5}
 
 /* ═══ Scan ═════════════════════════════════════════════════════════ */
 #velo{position:fixed;inset:0;z-index:80;background:rgba(20,15,5,.88);display:none;
@@ -198,4 +232,6 @@ footer{max-width:1000px;margin:0 auto;padding:1rem .9rem 2.5rem;color:var(--tenu
   .apertura h1{font-size:1.7rem}
   .m{font-size:1.08rem}
   .marchio small{display:none}
+  table.tab th,table.tab td{padding-left:.9rem;padding-right:.9rem}
+  table.tab td:first-child{padding-left:0}
 }
