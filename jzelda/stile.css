@@ -48,6 +48,9 @@ code{font-family:var(--mono);font-size:.88em;background:var(--codice);
 header.alta{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--sfondo) 88%,transparent);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--bordo)}
 .alta-int{display:flex;align-items:center;gap:.65rem;padding:.55rem .9rem;max-width:1400px;margin:0 auto}
+.su{font-size:1.05rem;line-height:1;text-decoration:none;color:var(--tenue);
+  padding:.3rem .5rem;border-radius:8px;display:inline-flex;align-items:center}
+.su:hover{color:var(--acc);background:var(--acc-2)}
 .marchio{display:flex;align-items:center;gap:.5rem;font-weight:680;letter-spacing:-.02em;
   text-decoration:none;color:var(--testo);white-space:nowrap}
 .marchio b{color:var(--acc)}
