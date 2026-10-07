@@ -71,36 +71,74 @@ function song() {
 }
 
 
-/* colomba: cliccata attraversa lo schermo ondeggiando, esce a sinistra e torna planando al suo posto */
+/* fenice: cliccata si ingrandisce volando da destra a sinistra, sale mostrando il petto e torna dall'alto al suo posto */
 
-var colomba = document.getElementById("colomba");
+var fenice = document.getElementById("fenice");
+var volo = document.getElementById("volo");
+var LATO = ["fenice/lato-1.webp", "fenice/lato-2.webp", "fenice/lato-3.webp", "fenice/lato-2.webp"];
+var FRONTE = ["fenice/fronte-1.webp", "fenice/fronte-2.webp"];
+LATO.concat(FRONTE).forEach(function (f) {
+  new Image().src = f; // caricate prima del volo
+});
 
-colomba.onclick = function () {
-  if (colomba.classList.contains("vola")) return;
-  var largo = innerWidth + 150;
-  var alto = innerHeight;
-  // quanto sale la colomba (in px) a un punto t del volo, da 0 a 1
-  function su(t) {
-    return alto * (0.3 * Math.sin(Math.PI * t) + 0.04 * Math.sin(6 * Math.PI * t));
-  }
-  var andata = [];
-  for (var i = 0; i <= 60; i++) {
-    var t = i / 60;
-    // inclinazione: becco in su quando sale, in giù quando scende
-    var pendenza = ((su(t + 0.01) - su(t)) / (largo * 0.01)) * 57;
-    andata.push({
-      transform: "translate(" + -t * largo + "px," + -su(t) + "px) rotate(" + Math.max(-25, Math.min(25, pendenza)) + "deg)",
-    });
-  }
-  colomba.classList.add("vola");
-  colomba.animate(andata, 2600).finished
+// una brace che si stacca dalla fenice e si spegne
+function brace() {
+  var r = volo.getBoundingClientRect();
+  var b = document.createElement("span");
+  b.className = "brace";
+  b.style.left = r.left + r.width * (0.2 + Math.random() * 0.6) + "px";
+  b.style.top = r.top + r.height * (0.3 + Math.random() * 0.5) + "px";
+  b.style.setProperty("--dx", (Math.random() - 0.5) * 80 + "px");
+  b.style.setProperty("--dy", -40 - Math.random() * 80 + "px");
+  b.onanimationend = function () {
+    b.remove();
+  };
+  document.body.appendChild(b);
+}
+
+// un pezzo di volo: le ali sbattono coi fotogrammi mentre la fenice passa per i punti [x, y, grandezza]
+// ritmo = ms fra un fotogramma e l'altro; verso -1 = guarda a sinistra (i disegni di profilo guardano a destra)
+function tratto(fotogrammi, ritmo, punti, durata, verso, easing) {
+  var i = 0;
+  var mezzo = volo.offsetWidth / 2;
+  volo.src = fotogrammi[0];
+  var ali = setInterval(function () {
+    volo.src = fotogrammi[++i % fotogrammi.length];
+  }, ritmo);
+  var braci = setInterval(brace, 35);
+  var passi = punti.map(function (p) {
+    return { transform: "translate(" + (p[0] - mezzo) + "px," + (p[1] - mezzo) + "px) scale(" + p[2] * verso + "," + p[2] + ")" };
+  });
+  return volo.animate(passi, { duration: durata, easing: easing || "linear", fill: "forwards" }).finished.then(function () {
+    clearInterval(ali);
+    clearInterval(braci);
+  });
+}
+
+fenice.onclick = function () {
+  if (volo.style.visibility == "visible") return;
+  var w = innerWidth;
+  var h = innerHeight;
+  var r = fenice.getBoundingClientRect();
+  var x0 = r.left + r.width / 2;
+  var y0 = r.top + r.height / 2;
+  var mezzo = volo.offsetWidth / 2;
+  var piccola = r.width / volo.offsetWidth; // grande come quando è ferma
+  var grande = Math.min(Math.min(w, h) * 0.9, 760) / volo.offsetWidth;
+  fenice.style.visibility = "hidden";
+  volo.style.visibility = "visible";
+  // 1. parte e attraversa lo schermo verso sinistra, sempre più grande
+  tratto(LATO, 110, [[x0, y0, piccola], [w * 0.65, h * 0.3, grande * 0.45], [w * 0.3, h * 0.35, grande * 0.8], [-mezzo * grande, h * 0.3, grande]], 2200, -1)
+    // 2. sale dal basso fino in cima mostrando il petto
     .then(function () {
-      return colomba.animate(
-        [{ transform: "translate(150px," + -alto * 0.25 + "px) rotate(-10deg)" }, { transform: "none" }],
-        { duration: 1400, easing: "ease-out" }
-      ).finished;
+      return tratto(FRONTE, 170, [[w / 2, h + mezzo * grande * 0.75, grande], [w / 2, -mezzo * grande * 0.75, grande]], 1700, 1);
+    })
+    // 3. riscende dall'alto, più piccola, e si posa dov'era
+    .then(function () {
+      return tratto(LATO, 110, [[x0 + w * 0.1, -mezzo, piccola * 0.7], [x0, y0, piccola]], 1500, -1, "ease-out");
     })
     .then(function () {
-      colomba.classList.remove("vola");
+      volo.style.visibility = "hidden";
+      fenice.style.visibility = "visible";
     });
 };
