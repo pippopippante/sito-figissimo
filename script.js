@@ -75,8 +75,8 @@ function song() {
 
 var fenice = document.getElementById("fenice");
 var volo = document.getElementById("volo");
-var LATO = ["fenice/lato-1.webp", "fenice/lato-2.webp", "fenice/lato-3.webp", "fenice/lato-2.webp"];
-var FRONTE = ["fenice/fronte-1.webp", "fenice/fronte-2.webp"];
+var LATO = ["fenice/lato-1.png", "fenice/lato-2.png", "fenice/lato-3.png", "fenice/lato-2.png"];
+var FRONTE = ["fenice/fronte-1.png", "fenice/fronte-2.png"];
 LATO.concat(FRONTE).forEach(function (f) {
   new Image().src = f; // caricate prima del volo
 });
