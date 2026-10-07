@@ -36,3 +36,38 @@ p.rainbow {
 @keyframes rainbow-move {
   to { background-position: 200% center; }
 }
+
+/* colomba: sta sul lato destro, cliccata vola (il volo è in script.js) */
+#colomba {
+  position: fixed;
+  right: 12px;
+  top: 45vh;
+  z-index: 10;
+  width: 80px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+}
+
+#colomba svg {
+  display: block;
+  width: 100%;
+}
+
+/* ali chiuse sul dorso; in volo sbattono */
+#colomba .ala {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: scaleY(-0.25);
+}
+
+#colomba.vola .ala {
+  animation: sbatte 0.25s ease-in-out infinite alternate;
+}
+
+@keyframes sbatte {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(-0.7); }
+}

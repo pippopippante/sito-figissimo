@@ -70,3 +70,37 @@ function song() {
   }
 }
 
+
+/* colomba: cliccata attraversa lo schermo ondeggiando, esce a sinistra e torna planando al suo posto */
+
+var colomba = document.getElementById("colomba");
+
+colomba.onclick = function () {
+  if (colomba.classList.contains("vola")) return;
+  var largo = innerWidth + 150;
+  var alto = innerHeight;
+  // quanto sale la colomba (in px) a un punto t del volo, da 0 a 1
+  function su(t) {
+    return alto * (0.3 * Math.sin(Math.PI * t) + 0.04 * Math.sin(6 * Math.PI * t));
+  }
+  var andata = [];
+  for (var i = 0; i <= 60; i++) {
+    var t = i / 60;
+    // inclinazione: becco in su quando sale, in giù quando scende
+    var pendenza = ((su(t + 0.01) - su(t)) / (largo * 0.01)) * 57;
+    andata.push({
+      transform: "translate(" + -t * largo + "px," + -su(t) + "px) rotate(" + Math.max(-25, Math.min(25, pendenza)) + "deg)",
+    });
+  }
+  colomba.classList.add("vola");
+  colomba.animate(andata, 2600).finished
+    .then(function () {
+      return colomba.animate(
+        [{ transform: "translate(150px," + -alto * 0.25 + "px) rotate(-10deg)" }, { transform: "none" }],
+        { duration: 1400, easing: "ease-out" }
+      ).finished;
+    })
+    .then(function () {
+      colomba.classList.remove("vola");
+    });
+};
