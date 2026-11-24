@@ -8,10 +8,10 @@ css.textContent = `
   #gioco { display: none; border: 0; width: 100%; height: 80dvh; background: transparent; }
   body.gioco-aperto #gioco { display: block; }
   @media (min-width: 700px) {
-    :root { --gioco-h: min(800px, calc(100dvh - 32px)); }
-    body.occhio-done { --gioco-h: min(800px, calc(100dvh - 218px)); }   /* lascia posto all'occhietto (170px) */
-    #gioco { position: fixed; right: 16px; bottom: 16px; width: 400px; height: var(--gioco-h); }
-    body.gioco-aperto { padding-right: 432px; }                          /* la pagina non ci finisce sotto */
+    :root { --gioco-h: min(640px, calc(100dvh - 32px)); }
+    body.occhio-done { --gioco-h: min(640px, calc(100dvh - 218px)); }   /* lascia posto all'occhietto (170px) */
+    #gioco { position: fixed; right: 16px; bottom: 16px; width: 320px; height: var(--gioco-h); }
+    body.gioco-aperto { padding-right: 352px; }                          /* la pagina non ci finisce sotto */
     body.gioco-aperto #occhio-mini { bottom: calc(var(--gioco-h) + 24px); }
   }
 `;
@@ -29,14 +29,16 @@ btn.addEventListener('click', () => {
   btn.textContent = on ? 'chiudi gioco' : 'gioca qui';
 });
 
-// dentro il gioco: niente "torna indietro", niente sfondo né barra di scorrimento suoi (si vede la pagina),
+// dentro il gioco: niente "torna indietro" né barra di scorrimento,
 // riquadri larghi quanto lo spazio, e il cursore sopra al gioco lo vede anche l'occhietto
 function sistema() {
   const d = frame.contentDocument;
   d.querySelector('a[href="../index.html"]')?.remove();
   const s = d.createElement('style');
-  s.textContent = 'html,body{background:transparent!important;scrollbar-width:none}.assumi,.potenzia{width:auto;max-width:360px}';
+  s.textContent = 'html{scrollbar-width:none}.assumi,.potenzia{width:auto;max-width:360px}';
   d.head.appendChild(s);
+  // ponytail: deciso al caricamento, se si passa da computer a telefono senza ricaricare resta com'era
+  if (matchMedia('(min-width: 700px)').matches) d.documentElement.style.zoom = 0.8;   // su computer tutto il 20% più piccolo
   d.addEventListener('pointermove', e => {
     const r = frame.getBoundingClientRect();
     dispatchEvent(new PointerEvent('pointermove', { clientX: e.clientX + r.left, clientY: e.clientY + r.top }));
