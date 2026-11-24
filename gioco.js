@@ -8,11 +8,11 @@ css.textContent = `
   #gioco { display: none; border: 0; width: 100%; height: 80dvh; background: transparent; }
   body.gioco-aperto #gioco { display: block; }
   @media (min-width: 700px) {
-    :root { --gioco-h: min(640px, calc(100dvh - 32px)); }
-    body.occhio-done { --gioco-h: min(640px, calc(100dvh - 218px)); }   /* lascia posto all'occhietto (170px) */
-    #gioco { position: fixed; right: 16px; bottom: 16px; width: 320px; height: var(--gioco-h); }
-    body.gioco-aperto { padding-right: 352px; }                          /* la pagina non ci finisce sotto */
-    body.gioco-aperto #occhio-mini { bottom: calc(var(--gioco-h) + 24px); }
+    :root { --gioco-h: min(640px, 100dvh); }
+    body.occhio-done { --gioco-h: min(640px, calc(100dvh - 194px)); }   /* lascia posto all'occhietto (170px) */
+    #gioco { position: fixed; right: 0; bottom: 0; width: 320px; height: var(--gioco-h); }   /* attaccato ai bordi */
+    body.gioco-aperto { padding-right: 336px; }                          /* la pagina non ci finisce sotto */
+    body.gioco-aperto #occhio-mini { bottom: calc(var(--gioco-h) + 8px); }
   }
 `;
 document.head.appendChild(css);
