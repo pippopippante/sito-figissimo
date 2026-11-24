@@ -5,15 +5,22 @@
 (() => {
 const css = document.createElement('style');
 css.textContent = `
-  #gioco { display: none; border: 0; width: 100%; height: 80dvh; background: transparent; }
-  body.gioco-aperto #gioco { display: block; }
+  /* chiuso resta nascosto (visibility) solo a fine animazione, così si vede scendere */
+  #gioco { display: block; visibility: hidden; border: 0; width: 100%; height: 0; background: transparent;
+    transition: height .35s ease, transform .35s ease, visibility 0s .35s; }
+  body.gioco-aperto #gioco { visibility: visible; height: 80dvh; transition: height .35s ease, transform .35s ease; }
   @media (min-width: 700px) {
     :root { --gioco-h: min(640px, 100dvh); }
     body.occhio-done { --gioco-h: min(640px, calc(100dvh - 194px)); }   /* lascia posto all'occhietto (170px) */
-    #gioco { position: fixed; right: 0; bottom: 0; width: 320px; height: var(--gioco-h); }   /* attaccato ai bordi */
+    /* attaccato ai bordi; sale dal basso e l'occhietto viene spinto su insieme */
+    #gioco { position: fixed; right: 0; bottom: 0; width: 320px; height: var(--gioco-h); transform: translateY(100%); }
+    body.gioco-aperto #gioco { height: var(--gioco-h); transform: none; }
+    body { transition: padding-right .35s ease; }
     body.gioco-aperto { padding-right: 336px; }                          /* la pagina non ci finisce sotto */
+    #occhio-mini { transition: bottom .35s ease; }
     body.gioco-aperto #occhio-mini { bottom: calc(var(--gioco-h) + 8px); }
   }
+  @media (prefers-reduced-motion: reduce) { #gioco, body, #occhio-mini { transition: none !important; } }
 `;
 document.head.appendChild(css);
 
